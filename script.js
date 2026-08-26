@@ -246,15 +246,20 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
   const grid = document.getElementById('galeria-grid');
   if (!grid) return;
 
-  const total  = 20;
-  const fotos  = Array.from({ length: total }, (_, i) => `images/atletas/${i + 1}.webp`);
+  const fotosAtletas = Array.from({ length: 20 }, (_, i) => `images/atletas/${i + 1}.webp`);
+  const fotos = [...fotosAtletas, 'images/atletas/treinadores.webp'];
+  const total = fotos.length;
 
   grid.innerHTML = fotos
-    .map((src, i) => `
+    .map((src, i) => {
+      const isTreinadores = src.includes('treinadores');
+      const alt = isTreinadores ? 'Treinadores Elite Legend Academy' : 'Atleta Elite Legend Academy';
+      return `
       <button class="galeria-thumb" type="button" data-index="${i}" aria-label="Ver foto ${i + 1} em grande">
-        <img src="${src}" alt="Atleta Elite Legend Academy" loading="lazy" />
+        <img src="${src}" alt="${alt}" loading="lazy" />
       </button>
-    `)
+    `;
+    })
     .join('');
 
   const lightbox    = document.getElementById('lightbox');
