@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elite Legend Academy</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Fundo dinâmico com partículas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <span class="logo-text"><span class="logo-accent">Elite</span> Legend <span class="logo-accent">Academy</span></span>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#hero">Início</a></li>
+      <li><a href="#sobre">Sobre Nós</a></li>
+      <li><a href="#novidades">Novidades</a></li>
+      <li><a href="#inscricoes">Pré-Inscrições</a></li>
+      <li><a href="#contactos">Contactos</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero" class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Joga no<br /><span class="highlight">Próximo Nível</span></h1>
+      <p class="hero-sub">Formamos Atletas. <span class="highlight-sub">Construímos Lendas.</span></p>
+      <a href="#inscricoes" class="btn-primary">Faz já a tua PRE-Inscrição</a>
+    </div>
+    <div class="hero-logo-wrapper">
+      <img src="images/logo.gif" alt="Elite Legend Academy" class="hero-logo" />
+    </div>
+  </section>
+
+  <!-- Sobre Nós -->
+  <section id="sobre" class="section sobre">
+    <div class="section-inner">
+      <span class="section-tag">Quem Somos</span>
+      <h2 class="section-title">Sobre Nós</h2>
+      <p class="section-desc">
+        A <strong>Elite Legend Academy</strong> nasceu da paixão pelo futebol e pelo desejo de criar uma
+        comunidade unida, competitiva e acima de tudo divertida. Reunimos jogadores
+        que partilham o mesmo amor pelo jogo bonito.
+      </p>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🏆</div>
+          <div class="card-body">
+            <h3>Competição</h3>
+            <p>Participamos em torneios nacionais e internacionais com foco em fair-play e superação.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤝</div>
+          <div class="card-body">
+            <h3>Comunidade</h3>
+            <p>Mais do que um clube, somos uma família que cresce junta dentro e fora do campo.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <div class="card-body">
+            <h3>Intensidade</h3>
+            <p>Treinos de alta qualidade com metodologias modernas para evoluir continuamente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Novidades -->
+  <section id="novidades" class="section novidades">
+    <div class="section-inner">
+      <span class="section-tag">Novidades</span>
+      <h2 class="section-title">Últimas Novidades</h2>
+
+      <div class="novidades-carousel">
+        <button class="novidades-arrow novidades-arrow-left" onclick="novidadeAnterior()" aria-label="Novidade anterior">‹</button>
+
+        <div class="novidades-track-wrap">
+          <div class="novidades-track" id="novidades-track">
+
+      <article class="novidade-card novidade-parceiro">
+        <div class="novidade-parceiro-logo">
+          <img src="images/becenter.jpg" alt="beCenter - Clínica de Saúde e Estética" />
+        </div>
+        <div class="novidade-body">
+          <div class="novidade-meta">
+            <span class="novidade-tag">Parceria</span>
+            <span class="novidade-date">Outubro 2026</span>
+          </div>
+          <h3 class="novidade-title">beCenter — Clínica de Saúde e Estética</h3>
+          <p class="novidade-text">A beCenter é uma clínica multidisciplinar focada na saúde, reabilitação e bem-estar.</p>
+          <p class="novidade-text">Dispomos de serviço de Osteopatia, Fisioterapia e Acupuntura para tratamento e prevenção de disfunções músculo-esqueléticas.</p>
+          <p class="novidade-text">Na área da estética, realizamos tratamentos faciais e corporais, depilação a laser com tecnologia avançada e serviços de manicure e pedicure.</p>
+          <p class="novidade-text">Uma equipa qualificada ao serviço da sua saúde e qualidade de vida.</p>
+        </div>
+      </article>
+
+      <article class="novidade-card">
+        <div class="novidade-img">
+          <img src="images/torneios_agenda.jpg" alt="Estreia da Elite Legend Academy em torneios de Futebol 7" />
+        </div>
+        <div class="novidade-body">
+          <div class="novidade-meta">
+            <span class="novidade-tag">Torneios</span>
+            <span class="novidade-date">Setembro 2026</span>
+          </div>
+          <h3 class="novidade-title">A nossa Academia em Torneios de Futebol 7</h3>
+          <p class="novidade-text">Chegou a hora da estreia! A Elite Legend Academy vai marcar presença nos torneios oficiais de Futebol 7, com os nossos atletas mais novos a darem os primeiros passos na competição.</p>
+          <p class="novidade-text"><strong>12 de setembro</strong> — Estreia do escalão Sub 10 (nascidos em 2017).</p>
+          <p class="novidade-text"><strong>26 de setembro</strong> — Estreia do escalão Sub 9 (nascidos em 2018).</p>
+        </div>
+      </article>
+
+      <article class="novidade-card">
+        <div class="novidade-img">
+          <img src="images/campo.webp" alt="Complexo Desportivo de Vilar de Nantes" />
+        </div>
+        <div class="novidade-body">
+          <div class="novidade-meta">
+            <span class="novidade-tag">Instalações</span>
+            <span class="novidade-date">Julho 2026</span>
+          </div>
+          <h3 class="novidade-title">O palco está montado.</h3>
+          <p class="novidade-text">É com muito orgulho que anunciamos que o <strong>Complexo Desportivo de Vilar de Nantes</strong> será a casa da Elite Legend Academy!</p>
+          <p class="novidade-text">É neste relvado, com estas condições de excelência, que vamos potenciar os melhores talentos da região e preparar a nossa equipa para enfrentar os gigantes nos grandes torneios.</p>
+          <p class="novidade-text">O projeto Elite Legend Academy está a ganhar forma e estamos quase prontos para dar o apito inicial.</p>
+        </div>
+      </article>
+
+          </div>
+        </div>
+
+        <button class="novidades-arrow novidades-arrow-right" onclick="novidadeSeguinte()" aria-label="Próxima novidade">›</button>
+
+        <div class="novidades-dots" id="novidades-dots"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Inscrições -->
+  <section id="inscricoes" class="section inscricoes">
+    <div class="section-inner">
+      <div id="inscricao-header">
+        <span class="section-tag">Junta-te a Nós</span>
+        <h2 class="section-title">Pre-Inscrições</h2>
+        <p class="section-desc">
+          Preenche o formulário. As vagas são limitadas!
+        </p>
+      </div>
+      <form class="form" id="inscricao-form">
+
+        <!-- Dados do Atleta -->
+        <div class="form-section-title">Dados do Atleta</div>
+
+        <div class="form-group full">
+          <label for="nome">Nome do Atleta *</label>
+          <input type="text" id="nome" placeholder="Nome completo do atleta" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="data_nascimento">Data de Nascimento *</label>
+            <input type="date" id="data_nascimento" required />
+          </div>
+          <div class="form-group">
+            <label for="num_bi">Número de BI *</label>
+            <input type="text" id="num_bi" placeholder="Ex: 12345678" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="num_contribuinte">Número de Contribuinte *</label>
+            <input type="text" id="num_contribuinte" placeholder="Ex: 123456789" maxlength="9" required />
+          </div>
+          <div class="form-group">
+            <label for="clube">Clube onde Joga</label>
+            <input type="text" id="clube" placeholder="Nome do clube atual" />
+          </div>
+        </div>
+
+        <!-- Autorizações -->
+        <div class="form-section-title">Autorizações</div>
+
+        <div class="form-group full">
+          <label>Autoriza a recolha de imagens e vídeos do Atleta? *</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="auth_imagens" value="sim" required />
+              <span class="radio-custom"></span>
+              Sim, autorizo
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="auth_imagens" value="nao" />
+              <span class="radio-custom"></span>
+              Não autorizo
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>Autoriza o uso de publicidade nos equipamentos de jogo e treino? *</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="auth_publicidade" value="sim" required />
+              <span class="radio-custom"></span>
+              Sim, autorizo
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="auth_publicidade" value="nao" />
+              <span class="radio-custom"></span>
+              Não autorizo
+            </label>
+          </div>
+        </div>
+
+        <!-- Encarregado de Educação -->
+        <div class="form-section-title">Encarregado de Educação</div>
+
+        <div class="form-group full">
+          <label for="enc_nome">Nome do Encarregado de Educação *</label>
+          <input type="text" id="enc_nome" placeholder="Nome completo" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="enc_tlm">Telemóvel *</label>
+            <input type="tel" id="enc_tlm" placeholder="+351 900 000 000" required />
+          </div>
+          <div class="form-group">
+            <label for="enc_email">E-mail *</label>
+            <input type="email" id="enc_email" placeholder="email@exemplo.com" required />
+          </div>
+        </div>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;margin-top:8px;margin-bottom:4px;">
+          <input type="checkbox" id="aceita-privacidade" required style="width:16px;height:16px;accent-color:#C9A84C;flex-shrink:0;margin-top:3px;" />
+          <span style="font-size:.88rem;color:#888;line-height:1.6;">
+            Li e aceito a <a href="privacidade.html" target="_blank" style="color:#C9A84C;text-decoration:none;font-weight:600;">Política de Privacidade</a> e o tratamento dos dados pessoais do atleta para efeitos de pré-inscrição e contacto. <span style="color:#C9A84C;">*</span>
+          </span>
+        </label>
+
+        <button type="submit" class="btn-primary btn-submit">Enviar Pre-Inscrição</button>
+      </form>
+      <div class="form-success" id="form-success">
+        <div class="success-icon">✦</div>
+        <h2 class="success-title">Pré-Inscrição Recebida</h2>
+        <p class="success-sub">
+          A tua candidatura foi submetida com sucesso.<br />
+          A nossa equipa irá analisar os teus dados e receberás mais informações em breve.
+        </p>
+        <div class="success-divider"></div>
+        <p class="success-note">Elite Legend Academy · Formamos Atletas. <em>Construímos Lendas.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contactos -->
+  <section id="contactos" class="section contactos">
+    <div class="section-inner">
+      <span class="section-tag">Fala Connosco</span>
+      <h2 class="section-title">Contactos</h2>
+      <div class="contact-grid">
+
+        <a class="contact-card" href="tel:+351936433887">
+          <div class="contact-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16l1 .92z"/>
+            </svg>
+          </div>
+          <div class="contact-label">Telemóvel</div>
+          <div class="contact-value">+351 936 433 887</div>
+        </a>
+
+        <a class="contact-card" href="https://wa.me/351936433887" target="_blank" rel="noopener">
+          <div class="contact-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
+              <path fill="#C9A84C" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+            </svg>
+          </div>
+          <div class="contact-label">WhatsApp</div>
+          <div class="contact-value">+351 936 433 887</div>
+        </a>
+
+        <a class="contact-card" href="mailto:geral@elitelegendacademy.com">
+          <div class="contact-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m2 7 10 7 10-7"/>
+            </svg>
+          </div>
+          <div class="contact-label">Email</div>
+          <div class="contact-value">geral@elitelegendacademy.com</div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 Elite Legend Academy · Formamos Atletas. Construímos Lendas.</p>
+    <p style="margin-top:8px;font-size:.8rem;">
+      <strong style="color:#e8e8e8;">Filipe Renato Martins Dias</strong> · NIF: <strong style="color:#e8e8e8;">229424945</strong>
+    </p>
+    <p style="margin-top:8px;font-size:.8rem;">
+      <a href="privacidade.html" style="color:var(--accent);text-decoration:none;">Política de Privacidade</a>
+    </p>
+  </footer>
+
+<script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

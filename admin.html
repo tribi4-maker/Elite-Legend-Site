@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backoffice — Elite Legend Academy</title>
+
+  <!-- Favicon (aba do browser) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
+
+  <!-- PWA: instalar/adicionar atalho no mobile -->
+  <link rel="manifest" href="admin-manifest.json" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="apple-touch-icon" href="images/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Elite Legend BO" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --dark:    #111111;
+      --card:    #161616;
+      --border:  #2a2a2a;
+      --accent:  #C9A84C;
+      --accent2: #F2D06B;
+      --text:    #e8e8e8;
+      --muted:   #888;
+    }
+
+    html { overflow-x: hidden; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--black);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Login ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-logo span {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .login-logo span em {
+      color: var(--accent);
+      font-style: normal;
+    }
+    .login-logo p {
+      font-size: .75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    label {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    input {
+      background: #1c1c1c;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-size: .98rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus { border-color: var(--accent); }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .9; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .login-error {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: rgba(255,80,80,.1);
+      border: 1px solid rgba(255,80,80,.3);
+      border-radius: 8px;
+      color: #ff6b6b;
+      font-size: .9rem;
+      text-align: center;
+    }
+    .login-error.show { display: block; }
+
+    /* ── Dashboard ── */
+    #dashboard { display: none; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(10,10,10,.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .topbar-title em { color: var(--accent); font-style: normal; }
+
+    .btn-logout {
+      padding: 8px 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: .88rem;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+
+    .dashboard-body { padding: 20px 40px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .stat-label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .stat-value {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    /* ── Tabs ── */
+    .tabs-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0;
+    }
+    .tabs-nav {
+      display: flex;
+      gap: 4px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .tabs-nav::-webkit-scrollbar { height: 5px; }
+    .tabs-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Hamburger (tabs, mobile) ── */
+    .tabs-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 40px; height: 36px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .tabs-toggle span {
+      display: block; width: 18px; height: 2px; margin: 0 auto;
+      background: var(--text); border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    .tabs-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .tabs-toggle.open span:nth-child(2) { opacity: 0; }
+    .tabs-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .tab-btn {
+      padding: 9px 22px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000;
+    }
+    .tab-panel { display: none; margin-top: 10px; }
+    .tab-panel.active { display: block; }
+
+    .tab-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .tab-actions-title { font-size: 1rem; font-weight: 800; color: var(--text); }
+    .btn-export {
+      padding: 8px 18px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: var(--accent);
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-export:hover { background: rgba(201,168,76,.1); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+    thead tr { background: #161616; }
+    th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #1e1e1e;
+      color: var(--text);
+      white-space: nowrap;
+      font-size: .88rem;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #181818; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .badge-sim       { background: rgba(0,200,100,.1);  color: #00c864;  border: 1px solid rgba(0,200,100,.2); }
+    .badge-nao       { background: rgba(255,80,80,.1);  color: #ff6b6b;  border: 1px solid rgba(255,80,80,.2); }
+    .badge-aprovado  { background: rgba(0,200,100,.1);  color: #00c864;  border: 1px solid rgba(0,200,100,.2); }
+    .badge-pendente  { background: rgba(201,168,76,.1); color: #C9A84C;  border: 1px solid rgba(201,168,76,.3); }
+
+    .btn-aprovar {
+      padding: 5px 14px;
+      background: linear-gradient(135deg, #C9A84C, #F2D06B);
+      color: #000;
+      font-size: .78rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity .2s;
+      white-space: nowrap;
+    }
+    .btn-aprovar:hover   { opacity: .85; }
+    .btn-aprovar:disabled { opacity: .4; cursor: not-allowed; }
+
+    .btn-nao-aprovar {
+      padding: 5px 14px;
+      background: transparent;
+      border: 1px solid rgba(255,80,80,.35);
+      color: #ff6b6b;
+      font-size: .78rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+      white-space: nowrap;
+    }
+
+    /* ── Modal: Detalhe da pré-inscrição ── */
+    .detalhe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0 4px; }
+    .detalhe-label { font-size: .68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+    .detalhe-valor { font-size: .92rem; color: var(--text); font-weight: 600; word-break: break-word; }
+    .detalhe-valor-destaque { font-size: .98rem; color: var(--accent); font-weight: 800; }
+    .btn-modal-aprovar {
+      flex: 1; padding: 11px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; font-size: .85rem;
+    }
+    .btn-modal-aprovar:hover { opacity: .85; }
+    .btn-modal-rejeitar {
+      flex: 1; padding: 11px; background: transparent; border: 1px solid rgba(255,80,80,.35);
+      color: #ff6b6b; font-weight: 700; border-radius: 8px; cursor: pointer; font-size: .85rem;
+      transition: background .2s;
+    }
+    .btn-modal-rejeitar:hover { background: rgba(255,80,80,.08); }
+
+    .btn-detalhe-decidir {
+      width: 100%; padding: 12px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-weight: 700; font-size: .88rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-detalhe-decidir:hover, .btn-detalhe-decidir.open { border-color: var(--accent); color: var(--accent); }
+    .detalhe-decidir-arrow { width: 10px; height: 8px; flex-shrink: 0; transition: transform .2s; }
+    .btn-detalhe-decidir.open .detalhe-decidir-arrow { transform: rotate(180deg); }
+    .detalhe-decidir-menu { display: none; flex-direction: column; gap: 10px; }
+    .detalhe-decidir-menu.open { display: flex; }
+    .badge-nao-aprovado { background: rgba(255,80,80,.1); color: #ff6b6b; border: 1px solid rgba(255,80,80,.2); }
+
+    /* ── Kebab menu ── */
+    .acao-trigger {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); font-size: 1.1rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s; line-height: 1;
+    }
+    .acao-trigger:hover { border-color: var(--accent); color: var(--accent); }
+    #acao-dropdown-global {
+      display: none; position: fixed; z-index: 500;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 8px; min-width: 148px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.6); overflow: hidden;
+    }
+    .acao-item {
+      display: block; width: 100%; padding: 9px 14px;
+      background: transparent; border: none; text-align: left;
+      color: var(--text); font-size: .85rem; cursor: pointer;
+      transition: background .15s; font-family: inherit;
+    }
+    .acao-item:hover { background: #1e1e1e; }
+    .acao-item-aprovar  { color: #C9A84C; }
+    .acao-item-rejeitar { color: #ff6b6b; }
+    .acao-sep { height: 1px; background: var(--border); margin: 2px 0; }
+
+    /* ── Custom select (Mensalidade padrão) ── */
+    .ms-select { position: relative; display: inline-block; }
+    .ms-select-btn {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      min-width: 190px; background: #1c1c1c; border: 1px solid var(--border); border-radius: 8px;
+      padding: 7px 12px; color: var(--text); font-size: .85rem; font-family: inherit;
+      cursor: pointer; transition: border-color .2s, box-shadow .2s;
+    }
+    .ms-select-btn:hover, .ms-select-btn.open {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.12);
+    }
+    .ms-select-arrow { width: 10px; height: 8px; flex-shrink: 0; color: var(--muted); transition: transform .2s, color .2s; }
+    .ms-select-btn:hover .ms-select-arrow, .ms-select-btn.open .ms-select-arrow { color: var(--accent); }
+    .ms-select-btn.open .ms-select-arrow { transform: rotate(180deg); }
+    .ms-select-menu {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 400;
+      background: var(--dark); border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.55); overflow-y: auto; max-height: 260px;
+    }
+    .ms-select-menu.open { display: block; }
+    .ms-select-option {
+      padding: 9px 14px; font-size: .85rem; color: var(--text); cursor: pointer;
+      transition: background .15s, color .15s; white-space: nowrap;
+    }
+    .ms-select-option:hover { background: rgba(201,168,76,.12); color: var(--accent); }
+    .ms-select-option.selected { color: var(--accent); font-weight: 600; background: rgba(201,168,76,.06); }
+
+    /* ── Sub-tabs (Pagamentos) ── */
+    .sub-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .sub-tab-btn {
+      padding: 7px 18px; border: 1px solid var(--border); border-radius: 7px;
+      background: transparent; color: var(--muted); font-size: .85rem;
+      font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .sub-tab-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(201,168,76,.08); }
+    .sub-tab-panel { display: none; }
+    .sub-tab-panel.active { display: block; }
+
+    /* ── Atletas grid ── */
+    .atletas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 12px; }
+    .atleta-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 20px; cursor: pointer; transition: border-color .2s, box-shadow .2s;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .atleta-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(201,168,76,.1); }
+    .atleta-card-nome { font-weight: 700; font-size: .95rem; margin-bottom: 3px; }
+    .atleta-card-sub  { font-size: .78rem; color: var(--muted); }
+    .badge-em-falta {
+      background: rgba(255,80,80,.12); color: #ff6b6b;
+      border: 1px solid rgba(255,80,80,.25); border-radius: 20px;
+      padding: 3px 10px; font-size: .72rem; font-weight: 700; white-space: nowrap;
+    }
+    .badge-ok {
+      background: rgba(0,200,100,.1); color: #00c864;
+      border: 1px solid rgba(0,200,100,.2); border-radius: 20px;
+      padding: 3px 10px; font-size: .72rem; font-weight: 700;
+    }
+
+    /* ── Detalhe pagamentos atleta ── */
+    .pag-detail { display: none; }
+    .pag-detail.show { display: block; }
+    .pag-header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .btn-voltar {
+      padding: 7px 16px; background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); font-size: .85rem; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-voltar:hover { border-color: var(--accent); color: var(--accent); }
+    .pag-header-nome { font-size: 1.1rem; font-weight: 800; }
+    .ano-nav { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .ano-nav button {
+      width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px;
+      background: transparent; color: var(--text); cursor: pointer; font-size: 1rem;
+      transition: border-color .2s;
+    }
+    .ano-nav button:hover { border-color: var(--accent); }
+    .ano-label { font-weight: 700; font-size: 1rem; min-width: 48px; text-align: center; }
+
+    .meses-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+    .mes-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; display: flex; flex-direction: column; gap: 6px;
+      position: relative;
+    }
+    .btn-apagar-mes {
+      position: absolute; top: 8px; right: 8px;
+      width: 20px; height: 20px; border-radius: 4px;
+      background: transparent; border: 1px solid transparent;
+      color: #444; font-size: .7rem; cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .btn-apagar-mes:hover { border-color: rgba(255,80,80,.4); color: #ff6b6b; background: rgba(255,80,80,.08); }
+    .mes-card.pago    { border-color: rgba(0,200,100,.4); }
+    .mes-card.pendente { border-color: rgba(201,168,76,.4); }
+    .mes-nome { font-size: .82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .mes-valor { font-size: 1.1rem; font-weight: 900; color: var(--text); }
+    .mes-tipo  { font-size: .72rem; color: var(--muted); }
+    .mes-data  { font-size: .72rem; color: #00c864; }
+    .btn-pagar {
+      margin-top: 4px; padding: 5px 0; width: 100%;
+      background: linear-gradient(135deg, #C9A84C, #F2D06B);
+      color: #000; font-size: .75rem; font-weight: 700;
+      border: none; border-radius: 6px; cursor: pointer; transition: opacity .2s;
+    }
+    .btn-pagar:hover { opacity: .85; }
+    .mes-card.sem-padrao { border-color: var(--border); }
+    .mes-card.na { border-color: var(--border); border-style: dashed; opacity: .5; }
+    .mes-hint { font-size: .68rem; color: var(--muted); font-style: italic; line-height: 1.3; }
+    .mes-notas { font-size: .7rem; color: var(--muted); font-style: italic; margin-top: 2px; white-space: normal; line-height: 1.3; }
+
+    /* ── Date input com toggle ── */
+    .date-wrapper { position: relative; display: flex; align-items: center; min-width: 0; }
+    .date-wrapper input[type="date"] { flex: 1; min-width: 0; padding-right: 44px; }
+    .date-wrapper input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+    .btn-calendar {
+      position: absolute; right: 8px;
+      width: 30px; height: 30px;
+      background: #1c1c1c; border: 1px solid var(--border);
+      border-radius: 6px; cursor: pointer;
+      color: var(--accent); font-size: .95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-calendar:hover { border-color: var(--accent); background: rgba(201,168,76,.1); }
+    .btn-lock {
+      width: 30px; height: 30px; flex-shrink: 0;
+      background: #1c1c1c; border: 1px solid var(--border); border-radius: 6px;
+      cursor: pointer; color: var(--muted); font-size: .9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-lock:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-lock.locked { color: var(--accent); border-color: rgba(201,168,76,.4); }
+
+    /* ── Stepper de valor (+10 / -10) ── */
+    .valor-stepper { display: flex; align-items: center; gap: 8px; }
+    .valor-stepper input[type="number"] { flex: 1; text-align: center; -moz-appearance: textfield; }
+    .valor-stepper input[type="number"]::-webkit-inner-spin-button,
+    .valor-stepper input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .btn-stepper {
+      width: 34px; height: 34px; flex-shrink: 0;
+      background: #1c1c1c; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--accent); font-size: 1.2rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; line-height: 1;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-stepper:hover { border-color: var(--accent); background: rgba(201,168,76,.1); }
+
+    /* ── Tabela de preços ── */
+    .preco-list { display: flex; flex-direction: column; gap: 8px; max-width: 560px; }
+    .preco-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 18px; display: flex; align-items: center; gap: 16px;
+    }
+    .preco-item-nome  { font-weight: 700; flex: 1; }
+    .preco-item-valor { font-size: 1.1rem; font-weight: 900; color: var(--accent); min-width: 70px; }
+    .preco-item-inativo { opacity: .4; }
+    .pesagem-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; display: flex; align-items: center; gap: 14px;
+      margin-bottom: 8px; position: relative;
+    }
+    .pesagem-item:last-child { margin-bottom: 0; }
+    .pesagem-data  { font-size: .82rem; color: var(--muted); flex: 1; }
+    .pesagem-valor { font-size: .92rem; font-weight: 700; color: var(--text); min-width: 62px; }
+    .btn-toggle {
+      padding: 5px 14px; border-radius: 6px; font-size: .75rem; font-weight: 700;
+      cursor: pointer; border: 1px solid var(--border); background: transparent;
+      color: var(--muted); transition: all .2s;
+    }
+    .btn-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .novo-preco-form {
+      margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; max-width: 560px;
+    }
+    .novo-preco-form input {
+      flex: 1; min-width: 140px; padding: 10px 14px; background: #1c1c1c;
+      border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+      font-size: .9rem; font-family: inherit; outline: none;
+    }
+    .novo-preco-form input:focus { border-color: var(--accent); }
+    .btn-add-preco {
+      padding: 10px 20px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; font-size: .88rem; border: none;
+      border-radius: 8px; cursor: pointer; white-space: nowrap;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.75);
+      display: none; align-items: center; justify-content: center;
+      z-index: 200; padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: var(--dark); border: 1px solid var(--border); border-radius: 16px;
+      padding: 32px; width: 100%; max-width: 420px;
+    }
+    .modal-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; }
+    .modal-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; min-width: 0; }
+    .movimentos-datas { display: flex; gap: 10px; align-items: end; }
+    .modal-group label { font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .modal-group select, .modal-group input, .modal-group textarea {
+      background: #1c1c1c; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; color: var(--text); font-size: .95rem;
+      font-family: inherit; outline: none;
+    }
+    .modal-group select:focus, .modal-group input:focus, .modal-group textarea:focus { border-color: var(--accent); }
+    .modal-group textarea { resize: vertical; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-modal-cancel {
+      flex: 1; padding: 11px; background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); cursor: pointer; font-size: .9rem;
+    }
+    .btn-modal-save {
+      flex: 2; padding: 11px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; border: none; border-radius: 8px;
+      cursor: pointer; font-size: .9rem;
+    }
+
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: var(--text); }
+    th.sort-asc::after  { content: ' ▲'; color: var(--accent); font-size: .6rem; }
+    th.sort-desc::after { content: ' ▼'; color: var(--accent); font-size: .6rem; }
+
+    /* Aprovados: esconder BI/NIF (5ª e 6ª colunas) para o botão de Ação ficar visível sem scroll */
+    #tab-aprovados th:nth-child(5), #tab-aprovados td:nth-child(5),
+    #tab-aprovados th:nth-child(6), #tab-aprovados td:nth-child(6) { display: none; }
+
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 0 20px; }
+      .dashboard-body { padding: 20px; }
+
+      .stats { grid-template-columns: 1fr; }
+      .pag-header-nome { margin-left: auto; }
+      .pag-header-field { width: 100%; justify-content: space-between; }
+      .ano-nav { width: 100%; justify-content: center; margin-left: 0; }
+
+      #tab-pendentes .col-extra, #tab-pendentes .col-data,
+      #tab-aprovados .col-extra, #tab-aprovados .col-data,
+      #tab-nao-aprovados .col-extra, #tab-nao-aprovados .col-data { display: none; }
+
+      .pesagens-form-grid { grid-template-columns: 1fr !important; }
+
+      #tab-pendentes tbody tr, #tab-aprovados tbody tr, #tab-nao-aprovados tbody tr { cursor: pointer; }
+
+      #tab-pendentes th, #tab-pendentes td,
+      #tab-aprovados th, #tab-aprovados td,
+      #tab-nao-aprovados th, #tab-nao-aprovados td { padding: 11px 8px; font-size: .74rem; }
+
+      #tab-pendentes th, #tab-aprovados th, #tab-nao-aprovados th { text-align: center; }
+
+      #tab-pendentes td:nth-child(3), #tab-aprovados td:nth-child(3), #tab-nao-aprovados td:nth-child(3) {
+        white-space: normal; font-size: .86rem;
+      }
+
+      .detalhe-grid { grid-template-columns: 1fr; }
+
+      .movimentos-filtros { flex-direction: column; align-items: stretch; }
+      .movimentos-filtros > input,
+      .movimentos-filtros > .movimentos-datas,
+      .movimentos-filtros > .movimentos-limpar { width: 100%; max-width: 100% !important; }
+      .movimentos-datas { display: flex; gap: 10px; }
+      .movimentos-datas .modal-group { flex: 1; min-width: 0; }
+      .movimentos-datas .date-wrapper { width: 100%; max-width: 100% !important; }
+
+      .tabs-header { width: 100%; }
+      .tabs-toggle { width: 100%; height: 44px; justify-content: center; }
+
+      .tabs-toggle { display: flex; }
+      .tabs-nav {
+        position: fixed; top: 64px; left: 0; right: 0;
+        flex-direction: column; align-items: stretch; gap: 0;
+        background: rgba(10,10,10,.97); backdrop-filter: blur(14px);
+        border: none; border-radius: 0; border-bottom: 1px solid var(--border);
+        padding: 8px 0 16px;
+        overflow-x: visible; overflow-y: auto; max-height: calc(100vh - 64px);
+        transform: translateY(-110%); opacity: 0; pointer-events: none;
+        transition: transform .3s ease, opacity .25s ease;
+        z-index: 99;
+      }
+      .tabs-nav.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+      .tab-btn { width: 100%; border-radius: 0; padding: 14px 0; font-size: .95rem; }
+
+      .meses-grid { grid-template-columns: repeat(3,1fr); gap: 6px; }
+      .mes-card { padding: 8px; gap: 3px; }
+      .mes-nome { font-size: .62rem; letter-spacing: .5px; }
+      .mes-valor { font-size: .85rem; }
+      .mes-tipo, .mes-data, .mes-hint { font-size: .6rem; }
+      .mes-notas { font-size: .58rem; }
+      .btn-pagar { font-size: .62rem; padding: 4px 0; }
+      .btn-apagar-mes { width: 16px; height: 16px; font-size: .6rem; top: 5px; right: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div class="login-logo">
+        <span>Elite Legend <em>Academy</em></span>
+        <p>Área Reservada</p>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="admin@email.com" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" />
+      </div>
+      <button class="btn" id="btn-login">Entrar</button>
+      <div class="login-error" id="login-error">Email ou password incorretos.</div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div class="topbar">
+      <div class="topbar-title">Elite Legend <em>Academy</em> — Backoffice</div>
+      <button class="btn-logout" id="btn-logout">Sair</button>
+    </div>
+    <div class="dashboard-body">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Total Pré-inscritos</div>
+          <div class="stat-value" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Aprovados</div>
+          <div class="stat-value" id="stat-aprovados" style="color:#00c864">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pendentes</div>
+          <div class="stat-value" id="stat-pendentes" style="color:#C9A84C">—</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-header">
+        <button class="tabs-toggle" id="tabs-toggle" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="tabs-nav" id="tabs-nav">
+          <button class="tab-btn active" data-tab="pendentes">Por Aprovar</button>
+          <button class="tab-btn" data-tab="nao-aprovados">Não Aprovados</button>
+          <button class="tab-btn" data-tab="aprovados">Aprovados</button>
+          <button class="tab-btn" data-tab="pagamentos">Pagamentos</button>
+        </div>
+      </div>
+
+      <!-- Tab: Por Aprovar -->
+      <div class="tab-panel active" id="tab-pendentes">
+        <div class="tab-actions">
+          <span class="tab-actions-title">Por Aprovar</span>
+          <button class="btn-export" id="btn-export-pendentes">Exportar CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-extra">#</th>
+                <th class="sortable col-data" data-col="criado_em">Data</th>
+                <th class="sortable" data-col="nome">Atleta</th>
+                <th class="sortable" data-col="data_nasc">Nasc.</th>
+                <th class="sortable col-extra" data-col="num_bi">BI</th>
+                <th class="sortable col-extra" data-col="num_contrib">NIF</th>
+                <th class="sortable col-extra" data-col="clube">Clube</th>
+                <th class="sortable col-extra" data-col="auth_imagens">Imagens</th>
+                <th class="sortable col-extra" data-col="auth_publicidade">Pub.</th>
+                <th class="sortable col-extra" data-col="enc_nome">Encarregado</th>
+                <th class="sortable col-extra" data-col="enc_tlm">Telemovel</th>
+                <th class="sortable col-extra" data-col="enc_email">Email</th>
+                <th class="col-extra">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="body-pendentes">
+              <tr><td colspan="13" class="empty">A carregar...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Não Aprovados -->
+      <div class="tab-panel" id="tab-nao-aprovados">
+        <div class="tab-actions">
+          <span class="tab-actions-title">Não Aprovados</span>
+          <button class="btn-export" id="btn-export-nao-aprovados">Exportar CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-extra">#</th>
+                <th class="sortable col-data" data-col="criado_em">Data</th>
+                <th class="sortable" data-col="nome">Atleta</th>
+                <th class="sortable" data-col="data_nasc">Nasc.</th>
+                <th class="sortable col-extra" data-col="num_bi">BI</th>
+                <th class="sortable col-extra" data-col="num_contrib">NIF</th>
+                <th class="sortable col-extra" data-col="clube">Clube</th>
+                <th class="sortable col-extra" data-col="auth_imagens">Imagens</th>
+                <th class="sortable col-extra" data-col="auth_publicidade">Pub.</th>
+                <th class="sortable col-extra" data-col="enc_nome">Encarregado</th>
+                <th class="sortable col-extra" data-col="enc_tlm">Tlm</th>
+                <th class="sortable col-extra" data-col="enc_email">Email</th>
+              </tr>
+            </thead>
+            <tbody id="body-nao-aprovados">
+              <tr><td colspan="12" class="empty">Não há pré-inscrições não aprovadas.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Aprovados -->
+      <div class="tab-panel" id="tab-aprovados">
+        <div class="tab-actions">
+          <span class="tab-actions-title">Aprovados</span>
+          <button class="btn-export" id="btn-export-aprovados">Exportar CSV</button>
+        </div>
+        <input type="text" id="pesquisa-aprovados" placeholder="Pesquisar…" style="width:100%;margin-bottom:14px;padding:9px 14px;background:#1c1c1c;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;font-family:inherit;outline:none;display:block;" oninput="filtrarAprovados()" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" />
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-extra">#</th>
+                <th class="sortable col-data" data-col="criado_em">Data</th>
+                <th class="sortable" data-col="nome">Atleta</th>
+                <th class="sortable" data-col="data_nasc">Nasc.</th>
+                <th class="sortable col-extra" data-col="num_bi">BI</th>
+                <th class="sortable col-extra" data-col="num_contrib">NIF</th>
+                <th class="sortable col-extra" data-col="clube">Clube</th>
+                <th class="sortable col-extra" data-col="auth_imagens">Imagens</th>
+                <th class="sortable col-extra" data-col="auth_publicidade">Pub.</th>
+                <th class="sortable col-extra" data-col="enc_nome">Encarregado</th>
+                <th class="sortable col-extra" data-col="enc_tlm">Tlm</th>
+                <th class="sortable col-extra" data-col="enc_email">Email</th>
+                <th class="col-extra">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="body-aprovados">
+              <tr><td colspan="13" class="empty">Ainda não há aprovados.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Tab: Pagamentos -->
+      <div class="tab-panel" id="tab-pagamentos">
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-label">Total Pago (Histórico)</div>
+            <div class="stat-value" id="stat-pago-total" style="color:#00c864">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pago Este Mês</div>
+            <div class="stat-value" id="stat-pago-mes" style="color:#00c864">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Por Pagar Este Mês</div>
+            <div class="stat-value" id="stat-porpagar-mes" style="color:#C9A84C">—</div>
+          </div>
+        </div>
+
+        <div class="sub-tabs">
+          <button class="sub-tab-btn active" data-sub="atletas">Atletas</button>
+          <button class="sub-tab-btn" data-sub="precos">Tabela de Preços</button>
+          <button class="sub-tab-btn" data-sub="movimentos">Movimentos</button>
+        </div>
+
+        <!-- Sub: Atletas -->
+        <div class="sub-tab-panel active" id="sub-atletas">
+          <div id="atletas-lista">
+            <input type="text" id="pesquisa-atletas" placeholder="Pesquisar atleta…" style="width:100%;margin-bottom:14px;padding:9px 14px;background:#1c1c1c;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;font-family:inherit;outline:none;display:block;" oninput="filtrarAtletas(this.value)" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" />
+            <div class="atletas-grid" id="atletas-grid">
+              <div class="empty">A carregar atletas...</div>
+            </div>
+          </div>
+          <div class="pag-detail" id="pag-detail">
+            <div class="pag-header">
+              <button class="btn-voltar" onclick="voltarListaAtletas()">← Voltar</button>
+              <span class="pag-header-nome" id="pag-atleta-nome"></span>
+              <div class="pag-header-field" style="display:flex;align-items:center;gap:8px;">
+                <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Mensalidade padrão</label>
+                <div class="ms-select" id="pag-preco-padrao-wrap">
+                  <button type="button" class="ms-select-btn" id="pag-preco-padrao-btn" onclick="toggleMsSelect('pag-preco-padrao-btn','pag-preco-padrao-menu',event)">
+                    <span id="pag-preco-padrao-label">— Nenhuma —</span>
+                    <svg class="ms-select-arrow" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <div class="ms-select-menu" id="pag-preco-padrao-menu"></div>
+                </div>
+                <select id="pag-preco-padrao" style="display:none;" onchange="alterarPrecoPadrao()"></select>
+              </div>
+              <div class="pag-header-field" style="display:flex;align-items:center;gap:8px;">
+                <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Início de atividade</label>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <div class="date-wrapper" style="max-width:150px;">
+                    <input type="date" id="pag-inicio-data" style="padding:7px 12px;padding-right:44px;font-size:.85rem;" onchange="guardarInicioAtividade()" />
+                    <button type="button" class="btn-calendar" id="pag-inicio-data-cal" onclick="toggleCalendario('pag-inicio-data')">📅</button>
+                  </div>
+                  <button type="button" class="btn-lock" id="pag-inicio-lock" onclick="alternarLockInicio()" title="Bloquear">🔓</button>
+                </div>
+              </div>
+              <div class="ano-nav">
+                <button onclick="mudarAno(-1)">‹</button>
+                <span class="ano-label" id="ano-label"></span>
+                <button onclick="mudarAno(1)">›</button>
+              </div>
+            </div>
+            <div class="meses-grid" id="meses-grid"></div>
+          </div>
+        </div>
+
+        <!-- Sub: Tabela de Preços -->
+        <div class="sub-tab-panel" id="sub-precos">
+          <div class="preco-list" id="preco-list"></div>
+          <div class="novo-preco-form">
+            <input type="text" id="novo-preco-nome" placeholder="Nome do preço" />
+            <input type="number" id="novo-preco-valor" placeholder="Valor (€)" step="0.01" min="0" style="max-width:130px;" />
+            <button class="btn-add-preco" onclick="adicionarPreco()">+ Adicionar</button>
+          </div>
+        </div>
+
+        <!-- Sub: Movimentos -->
+        <div class="sub-tab-panel" id="sub-movimentos">
+          <div class="movimentos-filtros" style="display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:16px;">
+            <input type="text" id="pesquisa-movimentos" class="movimentos-pesquisa" placeholder="Pesquisar atleta…" style="max-width:260px;padding:9px 14px;background:#1c1c1c;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;font-family:inherit;outline:none;" oninput="filtrarMovimentos()" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" />
+
+            <div class="movimentos-datas">
+              <div class="modal-group" style="margin-bottom:0;">
+                <label>De</label>
+                <div class="date-wrapper" style="max-width:150px;">
+                  <input type="date" id="movimentos-data-de" style="padding:7px 12px;padding-right:44px;font-size:.85rem;" onchange="filtrarMovimentos()" />
+                  <button type="button" class="btn-calendar" onclick="toggleCalendario('movimentos-data-de')">📅</button>
+                </div>
+              </div>
+              <div class="modal-group" style="margin-bottom:0;">
+                <label>Até</label>
+                <div class="date-wrapper" style="max-width:150px;">
+                  <input type="date" id="movimentos-data-ate" style="padding:7px 12px;padding-right:44px;font-size:.85rem;" onchange="filtrarMovimentos()" />
+                  <button type="button" class="btn-calendar" onclick="toggleCalendario('movimentos-data-ate')">📅</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn-export movimentos-limpar" onclick="limparFiltrosMovimentos()">Limpar Filtros</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Atleta</th>
+                  <th>Valor</th>
+                  <th>Notas</th>
+                </tr>
+              </thead>
+              <tbody id="body-movimentos">
+                <tr><td colspan="4" class="empty">A carregar...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dropdown global kebab -->
+  <div id="acao-dropdown-global">
+    <button class="acao-item acao-item-aprovar"  id="acao-btn-aprovar">✓ Aprovar</button>
+    <button class="acao-item acao-item-rejeitar" id="acao-btn-rejeitar">✗ Não Aprovar</button>
+    <div class="acao-sep"></div>
+    <button class="acao-item" id="acao-btn-editar">✎ Editar</button>
+  </div>
+
+  <!-- Modal: Editar inscrição -->
+  <div class="modal-overlay" id="modal-editar">
+    <div class="modal-box" style="max-width:540px;max-height:90vh;overflow-y:auto;">
+      <div class="modal-title">Editar Pré-Inscrição</div>
+      <input type="hidden" id="editar-id" />
+      <div class="modal-group"><label>Nome do Atleta</label><input type="text" id="editar-nome" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="modal-group"><label>Data de Nascimento</label><input type="date" id="editar-data-nasc" /></div>
+        <div class="modal-group"><label>BI</label><input type="text" id="editar-bi" /></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="modal-group"><label>NIF</label><input type="text" id="editar-nif" /></div>
+        <div class="modal-group"><label>Clube</label><input type="text" id="editar-clube" /></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="modal-group">
+          <label>Autoriza Imagens</label>
+          <select id="editar-imagens"><option value="sim">Sim</option><option value="nao">Não</option></select>
+        </div>
+        <div class="modal-group">
+          <label>Autoriza Publicidade</label>
+          <select id="editar-publicidade"><option value="sim">Sim</option><option value="nao">Não</option></select>
+        </div>
+      </div>
+      <div class="modal-group"><label>Nome do Encarregado</label><input type="text" id="editar-enc-nome" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="modal-group"><label>Telemóvel</label><input type="text" id="editar-enc-tlm" /></div>
+        <div class="modal-group"><label>Email</label><input type="email" id="editar-enc-email" /></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharEditarModal()">Cancelar</button>
+        <button class="btn-modal-save" onclick="guardarEdicao()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar aprovação -->
+  <div class="modal-overlay" id="modal-confirmar-aprovar">
+    <div class="modal-box" style="max-width:400px;">
+      <div class="modal-title">Aprovar Pré-Inscrição</div>
+      <p style="color:var(--muted);font-size:.92rem;line-height:1.6;margin-bottom:4px;">
+        Tens a certeza que queres aprovar a pré-inscrição de <strong style="color:var(--text);" id="confirmar-aprovar-nome"></strong>? Um email de confirmação será enviado ao encarregado de educação.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharConfirmarAprovar()">Cancelar</button>
+        <button class="btn-modal-save" onclick="confirmarAprovarSim()">✓ Aprovar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar rejeição -->
+  <div class="modal-overlay" id="modal-confirmar-rejeitar">
+    <div class="modal-box" style="max-width:400px;">
+      <div class="modal-title">Não Aprovar Pré-Inscrição</div>
+      <p style="color:var(--muted);font-size:.92rem;line-height:1.6;margin-bottom:4px;">
+        Tens a certeza que queres não aprovar a pré-inscrição de <strong style="color:var(--text);" id="confirmar-rejeitar-nome"></strong>?
+      </p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharConfirmarRejeitar()">Cancelar</button>
+        <button class="btn-modal-rejeitar" onclick="confirmarRejeitarSim()">✗ Não Aprovar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Detalhe da pré-inscrição (mobile) -->
+  <div class="modal-overlay" id="modal-detalhe">
+    <div class="modal-box" style="max-width:480px;max-height:90vh;overflow-y:auto;">
+      <div class="modal-title" id="detalhe-titulo">Detalhe da Pré-Inscrição</div>
+      <div class="detalhe-grid" id="detalhe-conteudo"></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
+        <div id="detalhe-acoes-pendente" style="display:flex;flex-direction:column;gap:10px;">
+          <button type="button" class="btn-detalhe-decidir" id="detalhe-btn-decidir" onclick="toggleDetalheDecidir()">
+            Aprovar ou Não Aprovar
+            <svg class="detalhe-decidir-arrow" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="detalhe-decidir-menu" id="detalhe-decidir-menu">
+            <button class="btn-modal-rejeitar" id="detalhe-btn-rejeitar">✗ Não Aprovar</button>
+            <button class="btn-modal-aprovar" id="detalhe-btn-aprovar">✓ Aprovar</button>
+          </div>
+        </div>
+        <button class="btn-modal-cancel" id="detalhe-btn-pesagens" style="display:none;">⚖️ Pesagens e Altura</button>
+        <button class="btn-modal-cancel" onclick="fecharDetalhe()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Pesagens e altura -->
+  <div class="modal-overlay" id="modal-pesagens">
+    <div class="modal-box" style="max-width:620px;max-height:95vh;overflow-y:auto;overflow-x:hidden;">
+      <div class="modal-title">
+        <div>Pesagens e Altura</div>
+        <div id="pesagens-nome-atleta" style="color:var(--accent);font-size:.9rem;font-weight:700;margin-top:4px;"></div>
+      </div>
+
+      <div class="pesagens-form-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div class="modal-group">
+          <label>Data</label>
+          <div class="date-wrapper">
+            <input type="date" id="pesagem-data" style="padding-right:44px;" />
+            <button type="button" class="btn-calendar" id="pesagem-data-cal" onclick="toggleCalendario('pesagem-data')">📅</button>
+          </div>
+        </div>
+        <div class="modal-group">
+          <label>Peso (kg)</label>
+          <input type="number" id="pesagem-peso" step="0.1" min="0" />
+        </div>
+        <div class="modal-group">
+          <label>Altura (cm)</label>
+          <input type="number" id="pesagem-altura" step="0.5" min="0" />
+        </div>
+      </div>
+      <button class="btn-modal-save" style="width:100%;margin-bottom:20px;" onclick="guardarPesagem()">Adicionar Registo</button>
+
+      <div id="pesagens-lista"></div>
+
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" style="flex:none;width:100%;" onclick="fecharPesagens()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar pagamento -->
+  <div class="modal-overlay" id="modal-pagar">
+    <div class="modal-box">
+      <div class="modal-title">Confirmar Pagamento</div>
+      <div class="modal-group">
+        <label>Data de Pagamento</label>
+        <div class="date-wrapper">
+          <input type="date" id="modal-pagar-data" />
+          <button type="button" class="btn-calendar" id="btn-calendar" onclick="toggleCalendario('modal-pagar-data')">📅</button>
+        </div>
+      </div>
+      <div class="modal-group">
+        <label>Valor Cobrado (€)</label>
+        <div class="valor-stepper">
+          <button type="button" class="btn-stepper" onclick="ajustarValorPagar(-10)">−</button>
+          <input type="number" id="modal-pagar-valor" step="0.01" min="0" />
+          <button type="button" class="btn-stepper" onclick="ajustarValorPagar(10)">+</button>
+        </div>
+      </div>
+      <div class="modal-group">
+        <label>Nota (opcional)</label>
+        <textarea id="modal-pagar-notas" rows="2" placeholder="Ex: Entrou a meio do mês, desconto…"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharModalPagar()">Cancelar</button>
+        <button class="btn-modal-save" onclick="confirmarPagamento()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script>
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ── Verificar sessão existente ──
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) mostrarDashboard();
+    });
+
+    // ── Login ──
+    document.getElementById('btn-login').addEventListener('click', async () => {
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn      = document.getElementById('btn-login');
+      const erro     = document.getElementById('login-error');
+
+      btn.disabled    = true;
+      btn.textContent = 'A entrar…';
+      erro.classList.remove('show');
+
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        erro.classList.add('show');
+        btn.disabled    = false;
+        btn.textContent = 'Entrar';
+      } else {
+        mostrarDashboard();
+      }
+    });
+
+    // ── Logout ──
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      document.getElementById('dashboard').style.display    = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+    });
+
+    // ── Mostrar dashboard e carregar dados ──
+    async function mostrarDashboard() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display    = 'block';
+      await carregarInscricoes();
+    }
+
+    let dadosGlobais = [];
+
+    // ── Tabs ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        document.getElementById('tabs-toggle').classList.remove('open');
+        document.getElementById('tabs-nav').classList.remove('open');
+      });
+    });
+
+    // ── Menu hamburger (tabs, mobile) ──
+    document.getElementById('tabs-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('tabs-toggle').classList.toggle('open');
+      document.getElementById('tabs-nav').classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      const toggle = document.getElementById('tabs-toggle');
+      const nav    = document.getElementById('tabs-nav');
+      if (nav.classList.contains('open') && !nav.contains(e.target) && !toggle.contains(e.target)) {
+        toggle.classList.remove('open');
+        nav.classList.remove('open');
+      }
+    });
+
+    async function carregarInscricoes() {
+      const { data, error } = await sb
+        .from('inscricoes')
+        .select('*')
+        .order('criado_em', { ascending: false });
+
+      if (error) {
+        document.getElementById('body-pendentes').innerHTML =
+          '<tr><td colspan="13" class="empty">Erro ao carregar dados.</td></tr>';
+        return;
+      }
+
+      dadosGlobais = data;
+      atualizarStats(data);
+      atualizarTabelaPendentes(data.filter(r => r.status === 'pendente'));
+      atualizarTabelaNaoAprovados(data.filter(r => r.status === 'nao_aprovado'));
+      filtrarAprovados();
+    }
+
+    function atualizarStats(data) {
+      document.getElementById('stat-total').textContent     = data.length;
+      document.getElementById('stat-aprovados').textContent = data.filter(r => r.status === 'aprovado').length;
+      document.getElementById('stat-pendentes').textContent = data.filter(r => r.status === 'pendente').length;
+    }
+
+    function linhaBase(r, i, total) {
+      return `
+        <td class="col-extra">${total - i}</td>
+        <td class="col-data">${new Date(r.criado_em).toLocaleDateString('pt-PT')}</td>
+        <td><strong>${r.nome}</strong></td>
+        <td>${r.data_nasc}</td>
+        <td class="col-extra">${r.num_bi}</td>
+        <td class="col-extra">${r.num_contrib}</td>
+        <td class="col-extra">${r.clube || '—'}</td>
+        <td class="col-extra"><span class="badge badge-${r.auth_imagens}">${r.auth_imagens}</span></td>
+        <td class="col-extra"><span class="badge badge-${r.auth_publicidade}">${r.auth_publicidade}</span></td>
+        <td class="col-extra">${r.enc_nome}</td>
+        <td class="col-extra">${r.enc_tlm}</td>
+        <td class="col-extra">${r.enc_email}</td>`;
+    }
+
+    let sortPendentes = { col: null, dir: null };
+
+    function ordenarPendentes(col) {
+      if (sortPendentes.col === col) {
+        if (sortPendentes.dir === 'asc')       sortPendentes.dir = 'desc';
+        else if (sortPendentes.dir === 'desc') { sortPendentes.col = null; sortPendentes.dir = null; }
+      } else {
+        sortPendentes.col = col;
+        sortPendentes.dir = 'asc';
+      }
+      document.querySelectorAll('#tab-pendentes th.sortable').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (th.dataset.col === sortPendentes.col)
+          th.classList.add(sortPendentes.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+      });
+      atualizarTabelaPendentes(dadosGlobais.filter(r => r.status === 'pendente'));
+    }
+
+    function atualizarTabelaPendentes(data) {
+      let rows = [...data];
+      if (sortPendentes.col && sortPendentes.dir) {
+        const col = sortPendentes.col;
+        rows.sort((a, b) => {
+          const va = (a[col] || '').toString();
+          const vb = (b[col] || '').toString();
+          return sortPendentes.dir === 'asc'
+            ? va.localeCompare(vb, 'pt')
+            : vb.localeCompare(va, 'pt');
+        });
+      }
+      const tbody = document.getElementById('body-pendentes');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="13" class="empty">Não há pré-inscrições por aprovar.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map((r, i) => `
+        <tr id="row-${r.id}" onclick="if (window.matchMedia('(max-width:600px)').matches) abrirDetalhePendente(${r.id})">
+          ${linhaBase(r, i, rows.length)}
+          <td class="col-extra">
+            <button class="acao-trigger" onclick="toggleAcao(${r.id}, event)">⋮</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    // ── Modal de detalhe (mobile) ──
+    function campo(label, valor, destaque) {
+      return `<div><p class="detalhe-label">${label}</p><p class="detalhe-valor${destaque ? ' detalhe-valor-destaque' : ''}">${valor}</p></div>`;
+    }
+
+    function abrirDetalhePendente(id) {
+      const r = dadosGlobais.find(x => x.id === id);
+      if (!r) return;
+
+      document.getElementById('detalhe-titulo').textContent = 'Detalhe da Pré-Inscrição';
+      document.getElementById('detalhe-conteudo').innerHTML =
+        campo('Data', new Date(r.criado_em).toLocaleDateString('pt-PT')) +
+        campo('Atleta', r.nome, true) +
+        campo('Nascimento', r.data_nasc, true) +
+        campo('BI', r.num_bi) +
+        campo('NIF', r.num_contrib) +
+        campo('Clube', r.clube || '—') +
+        campo('Autoriza Imagens', r.auth_imagens) +
+        campo('Autoriza Publicidade', r.auth_publicidade) +
+        campo('Encarregado', r.enc_nome, true) +
+        campo('Telemóvel', r.enc_tlm) +
+        `<div style="grid-column:1/-1;">${campo('Email', r.enc_email)}</div>`;
+
+      const btnAprovar  = document.getElementById('detalhe-btn-aprovar');
+      const btnRejeitar = document.getElementById('detalhe-btn-rejeitar');
+      btnAprovar.disabled     = false;
+      btnAprovar.textContent  = '✓ Aprovar';
+      btnRejeitar.disabled    = false;
+      btnRejeitar.textContent = '✗ Não Aprovar';
+      btnAprovar.onclick  = () => { fecharDetalhe(); confirmarAprovacao(id, btnAprovar); };
+      btnRejeitar.onclick = () => { fecharDetalhe(); confirmarRejeicao(id, btnRejeitar); };
+
+      document.getElementById('detalhe-acoes-pendente').style.display = 'flex';
+      document.getElementById('detalhe-btn-decidir').classList.remove('open');
+      document.getElementById('detalhe-decidir-menu').classList.remove('open');
+      document.getElementById('detalhe-btn-pesagens').style.display = 'none';
+      document.getElementById('modal-detalhe').classList.add('show');
+    }
+
+    function toggleDetalheDecidir() {
+      document.getElementById('detalhe-btn-decidir').classList.toggle('open');
+      document.getElementById('detalhe-decidir-menu').classList.toggle('open');
+    }
+
+    function abrirDetalheAprovado(id) {
+      const r = dadosGlobais.find(x => x.id === id);
+      if (!r) return;
+
+      document.getElementById('detalhe-titulo').textContent = 'Detalhe do Atleta';
+      document.getElementById('detalhe-conteudo').innerHTML =
+        campo('Data', new Date(r.criado_em).toLocaleDateString('pt-PT')) +
+        campo('Atleta', r.nome, true) +
+        campo('Nascimento', r.data_nasc, true) +
+        campo('BI', r.num_bi) +
+        campo('NIF', r.num_contrib) +
+        campo('Clube', r.clube || '—') +
+        campo('Autoriza Imagens', r.auth_imagens) +
+        campo('Autoriza Publicidade', r.auth_publicidade) +
+        campo('Encarregado', r.enc_nome) +
+        campo('Telemóvel', r.enc_tlm) +
+        `<div style="grid-column:1/-1;">${campo('Email', r.enc_email)}</div>`;
+
+      document.getElementById('detalhe-acoes-pendente').style.display = 'none';
+      const btnPesagens = document.getElementById('detalhe-btn-pesagens');
+      btnPesagens.style.display = 'block';
+      btnPesagens.onclick = () => { fecharDetalhe(); abrirPesagens(id); };
+      document.getElementById('modal-detalhe').classList.add('show');
+    }
+
+    function abrirDetalheNaoAprovado(id) {
+      const r = dadosGlobais.find(x => x.id === id);
+      if (!r) return;
+
+      document.getElementById('detalhe-titulo').textContent = 'Detalhe da Pré-Inscrição';
+      document.getElementById('detalhe-conteudo').innerHTML =
+        campo('Data', new Date(r.criado_em).toLocaleDateString('pt-PT')) +
+        campo('Atleta', r.nome, true) +
+        campo('Nascimento', r.data_nasc, true) +
+        campo('BI', r.num_bi) +
+        campo('NIF', r.num_contrib) +
+        campo('Clube', r.clube || '—') +
+        campo('Autoriza Imagens', r.auth_imagens) +
+        campo('Autoriza Publicidade', r.auth_publicidade) +
+        campo('Encarregado', r.enc_nome) +
+        campo('Telemóvel', r.enc_tlm) +
+        `<div style="grid-column:1/-1;">${campo('Email', r.enc_email)}</div>`;
+
+      document.getElementById('detalhe-acoes-pendente').style.display = 'none';
+      document.getElementById('detalhe-btn-pesagens').style.display = 'none';
+      document.getElementById('modal-detalhe').classList.add('show');
+    }
+
+    function fecharDetalhe() {
+      document.getElementById('modal-detalhe').classList.remove('show');
+    }
+
+    document.getElementById('modal-detalhe').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-detalhe')) fecharDetalhe();
+    });
+
+    // ── Pesagens e altura ──
+    let pesagemAtletaId = null;
+
+    async function abrirPesagens(id) {
+      pesagemAtletaId = id;
+      const atleta = dadosGlobais.find(x => x.id === id);
+      document.getElementById('pesagens-nome-atleta').textContent = atleta?.nome || '';
+      document.getElementById('pesagem-data').value   = new Date().toISOString().split('T')[0];
+      document.getElementById('pesagem-peso').value   = '';
+      document.getElementById('pesagem-altura').value = '';
+      await carregarPesagens();
+      document.getElementById('modal-pesagens').classList.add('show');
+    }
+
+    function fecharPesagens() {
+      document.getElementById('modal-pesagens').classList.remove('show');
+      pesagemAtletaId = null;
+    }
+
+    document.getElementById('modal-pesagens').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-pesagens')) fecharPesagens();
+    });
+
+    async function carregarPesagens() {
+      const lista = document.getElementById('pesagens-lista');
+      lista.innerHTML = '<div style="color:var(--muted);padding:8px 0;">A carregar…</div>';
+      const { data } = await sb.from('pesagens').select('*').eq('atleta_id', pesagemAtletaId).order('data_registo', { ascending: false });
+      const registos = data || [];
+      if (!registos.length) {
+        lista.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:6px 0 16px;">Ainda não há registos.</div>';
+        return;
+      }
+      lista.innerHTML = registos.map(r => `
+        <div class="pesagem-item">
+          <button class="btn-apagar-mes" onclick="apagarPesagem(${r.id})" title="Apagar registo">✕</button>
+          <span class="pesagem-data">${new Date(r.data_registo).toLocaleDateString('pt-PT')}</span>
+          <span class="pesagem-valor">${r.peso != null ? parseFloat(r.peso).toFixed(1) + ' kg' : '—'}</span>
+          <span class="pesagem-valor">${r.altura != null ? parseFloat(r.altura).toFixed(1) + ' cm' : '—'}</span>
+        </div>`).join('');
+    }
+
+    async function guardarPesagem() {
+      const data   = document.getElementById('pesagem-data').value;
+      const peso   = parseFloat(document.getElementById('pesagem-peso').value.replace(',', '.'));
+      const altura = parseFloat(document.getElementById('pesagem-altura').value.replace(',', '.'));
+      if (!data) { alert('Seleciona a data do registo.'); return; }
+      if (isNaN(peso) && isNaN(altura)) { alert('Introduz pelo menos o peso ou a altura.'); return; }
+
+      const { error } = await sb.from('pesagens').insert({
+        atleta_id: pesagemAtletaId,
+        data_registo: data,
+        peso: isNaN(peso) ? null : peso,
+        altura: isNaN(altura) ? null : altura,
+      });
+      if (error) { alert('Erro ao guardar registo: ' + error.message); return; }
+
+      document.getElementById('pesagem-peso').value   = '';
+      document.getElementById('pesagem-altura').value = '';
+      await carregarPesagens();
+    }
+
+    async function apagarPesagem(id) {
+      if (!confirm('Apagar este registo?')) return;
+      const { error } = await sb.from('pesagens').delete().eq('id', id);
+      if (error) { alert('Erro ao apagar.'); return; }
+      await carregarPesagens();
+    }
+
+    document.querySelectorAll('#tab-pendentes th.sortable').forEach(th => {
+      th.addEventListener('click', () => ordenarPendentes(th.dataset.col));
+    });
+
+    let sortNaoAprovados = { col: null, dir: null };
+
+    function ordenarNaoAprovados(col) {
+      if (sortNaoAprovados.col === col) {
+        if (sortNaoAprovados.dir === 'asc')       sortNaoAprovados.dir = 'desc';
+        else if (sortNaoAprovados.dir === 'desc') { sortNaoAprovados.col = null; sortNaoAprovados.dir = null; }
+      } else {
+        sortNaoAprovados.col = col;
+        sortNaoAprovados.dir = 'asc';
+      }
+      document.querySelectorAll('#tab-nao-aprovados th.sortable').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (th.dataset.col === sortNaoAprovados.col)
+          th.classList.add(sortNaoAprovados.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+      });
+      atualizarTabelaNaoAprovados(dadosGlobais.filter(r => r.status === 'nao_aprovado'));
+    }
+
+    function atualizarTabelaNaoAprovados(data) {
+      let rows = [...data];
+      if (sortNaoAprovados.col && sortNaoAprovados.dir) {
+        const col = sortNaoAprovados.col;
+        rows.sort((a, b) => {
+          const va = (a[col] || '').toString();
+          const vb = (b[col] || '').toString();
+          return sortNaoAprovados.dir === 'asc'
+            ? va.localeCompare(vb, 'pt')
+            : vb.localeCompare(va, 'pt');
+        });
+      }
+      const tbody = document.getElementById('body-nao-aprovados');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="12" class="empty">Não há pré-inscrições não aprovadas.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map((r, i) => `
+        <tr onclick="if (window.matchMedia('(max-width:600px)').matches) abrirDetalheNaoAprovado(${r.id})">${linhaBase(r, i, rows.length)}</tr>`).join('');
+    }
+
+    document.querySelectorAll('#tab-nao-aprovados th.sortable').forEach(th => {
+      th.addEventListener('click', () => ordenarNaoAprovados(th.dataset.col));
+    });
+
+    let sortAprovados = { col: null, dir: null };
+
+    function ordenarAprovados(col) {
+      if (sortAprovados.col === col) {
+        if (sortAprovados.dir === 'asc')       sortAprovados.dir = 'desc';
+        else if (sortAprovados.dir === 'desc') { sortAprovados.col = null; sortAprovados.dir = null; }
+      } else {
+        sortAprovados.col = col;
+        sortAprovados.dir = 'asc';
+      }
+      document.querySelectorAll('#tab-aprovados th.sortable').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (th.dataset.col === sortAprovados.col)
+          th.classList.add(sortAprovados.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+      });
+      filtrarAprovados();
+    }
+
+    function filtrarAprovados() {
+      const termo = (document.getElementById('pesquisa-aprovados')?.value || '').trim().toLowerCase();
+      let rows = dadosGlobais.filter(r => r.status === 'aprovado');
+      if (termo) {
+        rows = rows.filter(r =>
+          (r.nome || '').toLowerCase().includes(termo) ||
+          (r.data_nasc || '').toLowerCase().includes(termo) ||
+          (r.num_bi || '').toLowerCase().includes(termo) ||
+          (r.num_contrib || '').toLowerCase().includes(termo) ||
+          (r.clube || '').toLowerCase().includes(termo) ||
+          (r.enc_nome || '').toLowerCase().includes(termo) ||
+          (r.enc_tlm || '').toLowerCase().includes(termo) ||
+          (r.enc_email || '').toLowerCase().includes(termo)
+        );
+      }
+      atualizarTabelaAprovados(rows);
+    }
+
+    function atualizarTabelaAprovados(data) {
+      let rows = [...data];
+      if (sortAprovados.col && sortAprovados.dir) {
+        const col = sortAprovados.col;
+        rows.sort((a, b) => {
+          const va = (a[col] || '').toString();
+          const vb = (b[col] || '').toString();
+          return sortAprovados.dir === 'asc'
+            ? va.localeCompare(vb, 'pt')
+            : vb.localeCompare(va, 'pt');
+        });
+      }
+      const tbody = document.getElementById('body-aprovados');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="13" class="empty">Ainda não há aprovados.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map((r, i) => `
+        <tr onclick="if (window.matchMedia('(max-width:600px)').matches) abrirDetalheAprovado(${r.id})">
+          ${linhaBase(r, i, rows.length)}
+          <td class="col-extra">
+            <button class="acao-trigger" onclick="event.stopPropagation(); abrirPesagens(${r.id})" title="Pesagens e Altura">⚖️</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    document.querySelectorAll('#tab-aprovados th.sortable').forEach(th => {
+      th.addEventListener('click', () => ordenarAprovados(th.dataset.col));
+    });
+
+    // ── Kebab menu global ──
+    let acaoAberto = null;
+    const acaoDropdown = document.getElementById('acao-dropdown-global');
+
+    function toggleAcao(id, e) {
+      e.stopPropagation();
+      if (acaoAberto === id) { fecharAcaoDropdown(); return; }
+      acaoAberto = id;
+      const rect = e.currentTarget.getBoundingClientRect();
+      acaoDropdown.style.top   = (rect.bottom + 4) + 'px';
+      acaoDropdown.style.right = (window.innerWidth - rect.right) + 'px';
+      acaoDropdown.style.left  = 'auto';
+      acaoDropdown.style.display = 'block';
+      document.getElementById('acao-btn-aprovar').onclick  = () => { fecharAcaoDropdown(); confirmarAprovacao(id, document.getElementById('acao-btn-aprovar')); };
+      document.getElementById('acao-btn-rejeitar').onclick = () => { fecharAcaoDropdown(); confirmarRejeicao(id, document.getElementById('acao-btn-rejeitar')); };
+      document.getElementById('acao-btn-editar').onclick   = () => { fecharAcaoDropdown(); abrirEditar(id); };
+    }
+
+    function fecharAcaoDropdown() {
+      acaoDropdown.style.display = 'none';
+      acaoAberto = null;
+    }
+
+    document.addEventListener('click', () => fecharAcaoDropdown());
+
+    // ── Editar inscrição ──
+    function abrirEditar(id) {
+      const r = dadosGlobais.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById('editar-id').value          = id;
+      document.getElementById('editar-nome').value        = r.nome || '';
+      document.getElementById('editar-data-nasc').value   = r.data_nasc || '';
+      document.getElementById('editar-bi').value          = r.num_bi || '';
+      document.getElementById('editar-nif').value         = r.num_contrib || '';
+      document.getElementById('editar-clube').value       = r.clube || '';
+      document.getElementById('editar-imagens').value     = r.auth_imagens || 'sim';
+      document.getElementById('editar-publicidade').value = r.auth_publicidade || 'sim';
+      document.getElementById('editar-enc-nome').value    = r.enc_nome || '';
+      document.getElementById('editar-enc-tlm').value     = r.enc_tlm || '';
+      document.getElementById('editar-enc-email').value   = r.enc_email || '';
+      document.getElementById('modal-editar').classList.add('show');
+    }
+
+    function fecharEditarModal() {
+      document.getElementById('modal-editar').classList.remove('show');
+    }
+
+    async function guardarEdicao() {
+      const id = parseInt(document.getElementById('editar-id').value);
+      const payload = {
+        nome:             document.getElementById('editar-nome').value.trim(),
+        data_nasc:        document.getElementById('editar-data-nasc').value,
+        num_bi:           document.getElementById('editar-bi').value.trim(),
+        num_contrib:      document.getElementById('editar-nif').value.trim(),
+        clube:            document.getElementById('editar-clube').value.trim(),
+        auth_imagens:     document.getElementById('editar-imagens').value,
+        auth_publicidade: document.getElementById('editar-publicidade').value,
+        enc_nome:         document.getElementById('editar-enc-nome').value.trim(),
+        enc_tlm:          document.getElementById('editar-enc-tlm').value.trim(),
+        enc_email:        document.getElementById('editar-enc-email').value.trim(),
+      };
+      const { error } = await sb.from('inscricoes').update(payload).eq('id', id);
+      if (error) { alert('Erro ao guardar: ' + error.message); return; }
+      const idx = dadosGlobais.findIndex(x => x.id === id);
+      if (idx !== -1) dadosGlobais[idx] = { ...dadosGlobais[idx], ...payload };
+      fecharEditarModal();
+      atualizarTabelaPendentes(dadosGlobais.filter(r => r.status === 'pendente'));
+      atualizarTabelaNaoAprovados(dadosGlobais.filter(r => r.status === 'nao_aprovado'));
+      filtrarAprovados();
+    }
+
+    document.getElementById('modal-editar').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-editar')) fecharEditarModal();
+    });
+
+    let pendingRejeitar = null;
+
+    function confirmarRejeicao(id, btn) {
+      const r = dadosGlobais.find(x => x.id === id);
+      if (!r) return;
+      pendingRejeitar = { id, btn };
+      document.getElementById('confirmar-rejeitar-nome').textContent = r.nome;
+      document.getElementById('modal-confirmar-rejeitar').classList.add('show');
+    }
+
+    function fecharConfirmarRejeitar() {
+      document.getElementById('modal-confirmar-rejeitar').classList.remove('show');
+      pendingRejeitar = null;
+    }
+
+    function confirmarRejeitarSim() {
+      if (!pendingRejeitar) return;
+      const { id, btn } = pendingRejeitar;
+      fecharConfirmarRejeitar();
+      naoAprovar(id, btn);
+    }
+
+    document.getElementById('modal-confirmar-rejeitar').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-confirmar-rejeitar')) fecharConfirmarRejeitar();
+    });
+
+    async function naoAprovar(id, btn) {
+      btn.disabled = true;
+      btn.textContent = '…';
+      const { error } = await sb.from('inscricoes').update({ status: 'nao_aprovado' }).eq('id', id);
+      if (error) {
+        btn.disabled = false;
+        btn.textContent = 'Não Aprovar';
+        alert('Erro ao rejeitar. Tenta novamente.');
+        return;
+      }
+      const idx = dadosGlobais.findIndex(r => r.id === id);
+      if (idx !== -1) dadosGlobais[idx].status = 'nao_aprovado';
+
+      document.getElementById(`row-${id}`)?.remove();
+      const pendentes = dadosGlobais.filter(r => r.status === 'pendente');
+      if (!pendentes.length) {
+        document.getElementById('body-pendentes').innerHTML =
+          '<tr><td colspan="13" class="empty">Não há pré-inscrições por aprovar.</td></tr>';
+      }
+      atualizarTabelaNaoAprovados(dadosGlobais.filter(r => r.status === 'nao_aprovado'));
+      atualizarStats(dadosGlobais);
+    }
+
+    let pendingAprovar = null;
+
+    function confirmarAprovacao(id, btn) {
+      const r = dadosGlobais.find(x => x.id === id);
+      if (!r) return;
+      pendingAprovar = { id, btn };
+      document.getElementById('confirmar-aprovar-nome').textContent = r.nome;
+      document.getElementById('modal-confirmar-aprovar').classList.add('show');
+    }
+
+    function fecharConfirmarAprovar() {
+      document.getElementById('modal-confirmar-aprovar').classList.remove('show');
+      pendingAprovar = null;
+    }
+
+    function confirmarAprovarSim() {
+      if (!pendingAprovar) return;
+      const { id, btn } = pendingAprovar;
+      fecharConfirmarAprovar();
+      aprovar(id, btn);
+    }
+
+    document.getElementById('modal-confirmar-aprovar').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-confirmar-aprovar')) fecharConfirmarAprovar();
+    });
+
+    async function aprovar(id, btn) {
+      btn.disabled    = true;
+      btn.textContent = '…';
+
+      const { error } = await sb
+        .from('inscricoes')
+        .update({ status: 'aprovado' })
+        .eq('id', id);
+
+      if (error) {
+        btn.disabled    = false;
+        btn.textContent = 'Aprovar';
+        alert('Erro ao aprovar. Tenta novamente.');
+        return;
+      }
+
+      const idx = dadosGlobais.findIndex(r => r.id === id);
+      if (idx !== -1) dadosGlobais[idx].status = 'aprovado';
+
+      const atleta = dadosGlobais[idx];
+      if (atleta) {
+        sb.functions.invoke('enviar-email', {
+          body: { tipo: 'aprovacao', nome: atleta.nome, enc_nome: atleta.enc_nome, enc_email: atleta.enc_email },
+        }).catch(err => console.error('Erro ao enviar email de aprovação:', err));
+      }
+
+      // Remove da tabela pendentes
+      document.getElementById(`row-${id}`)?.remove();
+      const pendentes = dadosGlobais.filter(r => r.status === 'pendente');
+      if (!pendentes.length) {
+        document.getElementById('body-pendentes').innerHTML =
+          '<tr><td colspan="13" class="empty">Não há pré-inscrições por aprovar.</td></tr>';
+      }
+
+      // Adiciona à tabela aprovados
+      filtrarAprovados();
+      atualizarStats(dadosGlobais);
+    }
+
+    // ── Exportar CSV ──
+    function exportarCSV(dados, nomeficheiro) {
+      if (!dados.length) return;
+      const cabecalho = ['#','Data','Atleta','Nasc.','BI','Contribuinte','Clube','Imagens','Publicidade','Encarregado','Tlm','Email'];
+      const linhas = dados.map((r, i) => [
+        dados.length - i,
+        new Date(r.criado_em).toLocaleDateString('pt-PT'),
+        r.nome, r.data_nasc, r.num_bi, r.num_contrib,
+        r.clube || '', r.auth_imagens, r.auth_publicidade,
+        r.enc_nome, r.enc_tlm, r.enc_email
+      ]);
+      const csv = [cabecalho, ...linhas].map(l => l.map(v => `"${v}"`).join(',')).join('\n');
+      const a   = document.createElement('a');
+      a.href    = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = nomeficheiro;
+      a.click();
+    }
+
+    document.getElementById('btn-export-pendentes').addEventListener('click', () => {
+      exportarCSV(dadosGlobais.filter(r => r.status === 'pendente'), 'por_aprovar.csv');
+    });
+    document.getElementById('btn-export-nao-aprovados').addEventListener('click', () => {
+      exportarCSV(dadosGlobais.filter(r => r.status === 'nao_aprovado'), 'nao_aprovados.csv');
+    });
+    document.getElementById('btn-export-aprovados').addEventListener('click', () => {
+      exportarCSV(dadosGlobais.filter(r => r.status === 'aprovado'), 'aprovados.csv');
+    });
+
+    // ── Enter para login ──
+    document.getElementById('password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btn-login').click();
+    });
+
+    // ── Sub-tabs Pagamentos ──
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.sub-tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('sub-' + btn.dataset.sub).classList.add('active');
+        if (btn.dataset.sub === 'precos') carregarPrecos();
+        if (btn.dataset.sub === 'movimentos') carregarMovimentos();
+      });
+    });
+
+    // Carregar pagamentos quando entra na aba
+    document.querySelector('[data-tab="pagamentos"]').addEventListener('click', () => {
+      carregarAtletasPagamentos();
+    });
+
+    // ── Constantes ──
+    const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    let atletaAtual = null;
+    let anoAtual    = new Date().getFullYear();
+    let precosGlobal = [];
+    let mensalidadesAtleta = [];
+
+    let atletasCache = [];
+
+    function filtrarAtletas(termo) {
+      const t = termo.trim().toLowerCase();
+      const grid = document.getElementById('atletas-grid');
+      const filtrados = t
+        ? atletasCache.filter(a => a.nome.toLowerCase().includes(t))
+        : atletasCache;
+      grid.innerHTML = filtrados.length
+        ? filtrados.map(renderAtletaCard).join('')
+        : '<div class="empty">Nenhum atleta encontrado.</div>';
+    }
+
+    function renderAtletaCard(a) {
+      const badge = a._emFalta
+        ? `<span class="badge-em-falta">Em falta</span>`
+        : `<span class="badge-ok">Em dia</span>`;
+      const preco = precosGlobal.find(p => p.id === a.preco_padrao_id);
+      const precoLabel = preco ? ` · ${parseFloat(preco.valor).toFixed(2)} €` : '';
+      return `<div class="atleta-card" onclick="abrirAtleta(${a.id}, '${a.nome.replace(/'/g,"\\'")}')">
+        <div>
+          <div class="atleta-card-nome">${a.nome}</div>
+          <div class="atleta-card-sub">${a.clube || 'Sem clube'}${precoLabel}</div>
+        </div>
+        ${badge}
+      </div>`;
+    }
+
+    // ── Carregar atletas com resumo de pagamentos ──
+    async function carregarAtletasPagamentos() {
+      const grid = document.getElementById('atletas-grid');
+      grid.innerHTML = '<div class="empty">A carregar...</div>';
+
+      await carregarPrecosFetch();
+
+      const hoje    = new Date();
+      const mesAtual = hoje.getMonth() + 1;
+      const anoAtualGlobal = hoje.getFullYear();
+
+      const { data: atletas } = await sb.from('inscricoes').select('id,nome,clube,criado_em,preco_padrao_id,inicio_atividade').eq('status','aprovado').order('nome');
+      const { data: mens } = await sb.from('mensalidades').select('atleta_id,status,mes,ano,valor_cobrado').eq('status', 'pago');
+
+      atletasCache = (atletas || []).map(a => {
+        const [inicioAno, inicioMes] = a.inicio_atividade
+          ? a.inicio_atividade.split('-').map(Number)
+          : [null, null];
+        const aindaNaoComecou = inicioMes && inicioAno &&
+          (anoAtualGlobal < inicioAno || (anoAtualGlobal === inicioAno && mesAtual < inicioMes));
+        const pagoMesAtual = (mens || []).some(m => m.atleta_id === a.id && m.mes === mesAtual && m.ano === anoAtualGlobal);
+        return { ...a, _emFalta: !aindaNaoComecou && !pagoMesAtual };
+      });
+
+      atualizarStatsPagamentos(mens || [], mesAtual, anoAtualGlobal);
+
+      if (!atletas?.length) { grid.innerHTML = '<div class="empty">Sem atletas aprovados.</div>'; return; }
+
+      const termo = document.getElementById('pesquisa-atletas')?.value || '';
+      filtrarAtletas(termo);
+    }
+
+    function atualizarStatsPagamentos(pagos, mesAtual, anoAtual) {
+      const totalHistorico = pagos.reduce((soma, m) => soma + parseFloat(m.valor_cobrado || 0), 0);
+      const totalMes = pagos
+        .filter(m => m.mes === mesAtual && m.ano === anoAtual)
+        .reduce((soma, m) => soma + parseFloat(m.valor_cobrado || 0), 0);
+
+      const porPagarMes = atletasCache
+        .filter(a => a._emFalta)
+        .reduce((soma, a) => {
+          const preco = precosGlobal.find(p => p.id === a.preco_padrao_id);
+          return soma + (preco ? parseFloat(preco.valor) : 0);
+        }, 0);
+
+      document.getElementById('stat-pago-total').textContent    = totalHistorico.toFixed(2) + ' €';
+      document.getElementById('stat-pago-mes').textContent      = totalMes.toFixed(2) + ' €';
+      document.getElementById('stat-porpagar-mes').textContent  = porPagarMes.toFixed(2) + ' €';
+    }
+
+    // ── Abrir detalhe de atleta ──
+    async function abrirAtleta(id, nome) {
+      atletaAtual = id;
+      anoAtual    = new Date().getFullYear();
+      document.getElementById('pag-atleta-nome').textContent = nome;
+      document.getElementById('atletas-lista').style.display = 'none';
+      document.getElementById('pag-detail').classList.add('show');
+      await carregarPrecosFetch();
+      preencherSelectPrecoPadrao();
+      preencherInicioAtividade();
+      await renderMeses();
+    }
+
+    // ── Dropdowns customizados (genérico) ──
+    function toggleMsSelect(btnId, menuId, e) {
+      e.stopPropagation();
+      const btn  = document.getElementById(btnId);
+      const menu = document.getElementById(menuId);
+      const isOpen = menu.classList.contains('open');
+      fecharTodosMsSelects();
+      if (!isOpen) { menu.classList.add('open'); btn.classList.add('open'); }
+    }
+
+    function fecharTodosMsSelects() {
+      document.querySelectorAll('.ms-select-menu.open').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.ms-select-btn.open').forEach(b => b.classList.remove('open'));
+    }
+
+    document.addEventListener('click', fecharTodosMsSelects);
+
+    // ── Mensalidade padrão do atleta ──
+    function preencherSelectPrecoPadrao() {
+      const atleta = atletasCache.find(a => a.id === atletaAtual);
+      const atual  = atleta?.preco_padrao_id || '';
+      const sel = document.getElementById('pag-preco-padrao');
+      sel.innerHTML = '<option value="">— Nenhuma —</option>' +
+        precosGlobal.filter(p => p.ativo || p.id === atual).map(p =>
+          `<option value="${p.id}" ${p.id === atual ? 'selected' : ''}>${p.nome} — ${parseFloat(p.valor).toFixed(2)} €</option>`
+        ).join('');
+
+      const menu  = document.getElementById('pag-preco-padrao-menu');
+      const label = document.getElementById('pag-preco-padrao-label');
+      menu.innerHTML = Array.from(sel.options).map(opt =>
+        `<div class="ms-select-option${opt.selected ? ' selected' : ''}" data-id="${opt.value}" onclick="escolherPrecoPadrao('${opt.value}')">${opt.textContent}</div>`
+      ).join('');
+      label.textContent = sel.selectedOptions[0]?.textContent || '— Nenhuma —';
+    }
+
+    function escolherPrecoPadrao(id) {
+      const sel = document.getElementById('pag-preco-padrao');
+      sel.value = id;
+      document.getElementById('pag-preco-padrao-label').textContent = sel.selectedOptions[0]?.textContent || '— Nenhuma —';
+      document.querySelectorAll('#pag-preco-padrao-menu .ms-select-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.id === String(id));
+      });
+      fecharTodosMsSelects();
+      alterarPrecoPadrao();
+    }
+
+    async function alterarPrecoPadrao() {
+      const sel = document.getElementById('pag-preco-padrao');
+      const val = sel.value ? parseInt(sel.value) : null;
+      const { error } = await sb.from('inscricoes').update({ preco_padrao_id: val }).eq('id', atletaAtual);
+      if (error) { alert('Erro ao guardar mensalidade padrão: ' + error.message); return; }
+      const atleta = atletasCache.find(a => a.id === atletaAtual);
+      if (atleta) atleta.preco_padrao_id = val;
+      await renderMeses();
+    }
+
+    // ── Início de atividade do atleta ──
+    function preencherInicioAtividade() {
+      const atleta = atletasCache.find(a => a.id === atletaAtual);
+      document.getElementById('pag-inicio-data').value = atleta?.inicio_atividade || '';
+      aplicarLockInicio(!!atleta?.inicio_atividade);
+    }
+
+    function aplicarLockInicio(bloqueado) {
+      const input = document.getElementById('pag-inicio-data');
+      const cal   = document.getElementById('pag-inicio-data-cal');
+      const lock  = document.getElementById('pag-inicio-lock');
+      input.disabled = bloqueado;
+      cal.disabled    = bloqueado;
+      lock.classList.toggle('locked', bloqueado);
+      lock.textContent = bloqueado ? '🔒' : '🔓';
+      lock.title = bloqueado ? 'Destrancar para editar' : 'Por definir';
+    }
+
+    function alternarLockInicio() {
+      const input = document.getElementById('pag-inicio-data');
+      if (input.disabled) {
+        if (!confirm('Alterar o início de atividade pode desalinhar os meses já registados. Queres mesmo editar?')) return;
+        aplicarLockInicio(false);
+        input.focus();
+      } else if (input.value) {
+        aplicarLockInicio(true);
+      }
+    }
+
+    async function guardarInicioAtividade() {
+      const atleta = atletasCache.find(a => a.id === atletaAtual);
+      const valor = document.getElementById('pag-inicio-data').value || null;
+      const { error } = await sb.from('inscricoes').update({ inicio_atividade: valor }).eq('id', atletaAtual);
+      if (error) { alert('Erro ao guardar início de atividade: ' + error.message); return; }
+      if (atleta) atleta.inicio_atividade = valor;
+      aplicarLockInicio(!!valor);
+      await renderMeses();
+      carregarAtletasPagamentos();
+    }
+
+    function voltarListaAtletas() {
+      document.getElementById('pag-detail').classList.remove('show');
+      document.getElementById('atletas-lista').style.display = 'block';
+      atletaAtual = null;
+    }
+
+    async function mudarAno(delta) {
+      anoAtual += delta;
+      document.getElementById('ano-label').textContent = anoAtual;
+      await renderMeses();
+    }
+
+    async function renderMeses() {
+      document.getElementById('ano-label').textContent = anoAtual;
+      const grid = document.getElementById('meses-grid');
+      grid.innerHTML = '<div style="color:var(--muted);padding:20px;">A carregar…</div>';
+
+      const { data } = await sb.from('mensalidades').select('*').eq('atleta_id', atletaAtual).eq('ano', anoAtual);
+      mensalidadesAtleta = data || [];
+
+      const atleta      = atletasCache.find(a => a.id === atletaAtual);
+      const precoPadrao = precosGlobal.find(p => p.id === atleta?.preco_padrao_id);
+      const [inicioAno, inicioMes] = atleta?.inicio_atividade
+        ? atleta.inicio_atividade.split('-').map(Number)
+        : [null, null];
+
+      grid.innerHTML = MESES.map((nome, i) => {
+        const mes  = i + 1;
+        const reg  = mensalidadesAtleta.find(m => m.mes === mes);
+        const antesDoInicio = inicioMes && inicioAno &&
+          (anoAtual < inicioAno || (anoAtual === inicioAno && mes < inicioMes));
+
+        if (!reg && antesDoInicio) {
+          return `<div class="mes-card na">
+            <div class="mes-nome">${nome}</div>
+            <div class="mes-hint">Antes do início de atividade</div>
+          </div>`;
+        }
+        if (!reg && precoPadrao) {
+          // Mês por pagar — calculado a partir da mensalidade padrão, nada gravado na BD ainda.
+          return `<div class="mes-card pendente">
+            <div class="mes-nome">${nome}</div>
+            <div class="mes-valor">${parseFloat(precoPadrao.valor).toFixed(2)} €</div>
+            <div class="mes-tipo">${precoPadrao.nome}</div>
+            <button class="btn-pagar" onclick="abrirModalPagar(null, ${mes})">Marcar Pago</button>
+          </div>`;
+        }
+        if (!reg) {
+          return `<div class="mes-card sem-padrao">
+            <div class="mes-nome">${nome}</div>
+            <div class="mes-hint">Define a mensalidade padrão ↑ para poderes marcar como pago</div>
+          </div>`;
+        }
+        if (reg.status === 'pago') {
+          return `<div class="mes-card pago">
+            <button class="btn-apagar-mes" onclick="apagarMensalidade(${reg.id})" title="Apagar registo">✕</button>
+            <div class="mes-nome">${nome}</div>
+            <div class="mes-valor">${parseFloat(reg.valor_cobrado).toFixed(2)} €</div>
+            <div class="mes-tipo">${precosGlobal.find(p=>p.id===reg.preco_id)?.nome || ''}</div>
+            <div class="mes-data">✓ ${reg.data_pagamento ? new Date(reg.data_pagamento).toLocaleDateString('pt-PT') : 'Pago'}</div>
+            ${reg.notas ? `<div class="mes-notas">${reg.notas}</div>` : ''}
+          </div>`;
+        }
+        return `<div class="mes-card pendente">
+          <button class="btn-apagar-mes" onclick="apagarMensalidade(${reg.id})" title="Apagar registo">✕</button>
+          <div class="mes-nome">${nome}</div>
+          <div class="mes-valor">${parseFloat(reg.valor_cobrado).toFixed(2)} €</div>
+          <div class="mes-tipo">${precosGlobal.find(p=>p.id===reg.preco_id)?.nome || ''}</div>
+          ${reg.notas ? `<div class="mes-notas">${reg.notas}</div>` : ''}
+          <button class="btn-pagar" onclick="abrirModalPagar(${reg.id})">Marcar Pago</button>
+        </div>`;
+      }).join('');
+    }
+
+    let mensalidadeParaPagar = null;
+    let mesVirtualParaPagar  = null;
+
+    function abrirModalPagar(mensalidadeId, mes) {
+      mensalidadeParaPagar = mensalidadeId || null;
+      mesVirtualParaPagar  = mensalidadeId ? null : mes;
+
+      let valor = '', notas = '';
+      if (mensalidadeId) {
+        const reg = mensalidadesAtleta.find(m => m.id === mensalidadeId);
+        valor = reg?.valor_cobrado ?? '';
+        notas = reg?.notas || '';
+      } else {
+        const atleta      = atletasCache.find(a => a.id === atletaAtual);
+        const precoPadrao = precosGlobal.find(p => p.id === atleta?.preco_padrao_id);
+        valor = precoPadrao?.valor ?? '';
+      }
+
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-pagar-data').value  = hoje;
+      document.getElementById('modal-pagar-valor').value = valor;
+      document.getElementById('modal-pagar-notas').value = notas;
+      document.getElementById('modal-pagar').classList.add('show');
+    }
+
+    function fecharModalPagar() {
+      document.getElementById('modal-pagar').classList.remove('show');
+      mensalidadeParaPagar = null;
+      mesVirtualParaPagar  = null;
+    }
+
+    function ajustarValorPagar(delta) {
+      const input = document.getElementById('modal-pagar-valor');
+      const atual = parseFloat(input.value) || 0;
+      input.value = Math.max(0, atual + delta).toFixed(2);
+    }
+
+    async function confirmarPagamento() {
+      const data  = document.getElementById('modal-pagar-data').value;
+      const valor = parseFloat(document.getElementById('modal-pagar-valor').value);
+      const notas = document.getElementById('modal-pagar-notas').value.trim();
+      if (!data) { alert('Seleciona a data de pagamento.'); return; }
+      if (isNaN(valor) || valor < 0) { alert('Introduz um valor válido.'); return; }
+
+      if (mensalidadeParaPagar) {
+        const { error } = await sb.from('mensalidades')
+          .update({ status: 'pago', data_pagamento: data, valor_cobrado: valor, notas: notas || null })
+          .eq('id', mensalidadeParaPagar);
+        if (error) { alert('Erro ao registar pagamento.'); return; }
+      } else if (mesVirtualParaPagar) {
+        const atleta      = atletasCache.find(a => a.id === atletaAtual);
+        const precoPadrao = precosGlobal.find(p => p.id === atleta?.preco_padrao_id);
+        if (!precoPadrao) { alert('Define primeiro a mensalidade padrão deste atleta.'); return; }
+        const { error } = await sb.from('mensalidades').insert({
+          atleta_id: atletaAtual, mes: mesVirtualParaPagar, ano: anoAtual,
+          preco_id: precoPadrao.id, valor_cobrado: valor, notas: notas || null,
+          status: 'pago', data_pagamento: data,
+        });
+        if (error) { alert('Erro ao registar pagamento: ' + error.message); return; }
+      }
+
+      fecharModalPagar();
+      await renderMeses();
+      carregarAtletasPagamentos();
+    }
+
+    async function apagarMensalidade(id) {
+      if (!confirm('Apagar este registo de mensalidade?')) return;
+      const { error } = await sb.from('mensalidades').delete().eq('id', id);
+      if (error) { alert('Erro ao apagar.'); return; }
+      await renderMeses();
+      carregarAtletasPagamentos();
+    }
+
+    // ── Preços ──
+    async function carregarPrecosFetch() {
+      if (precosGlobal.length) return;
+      const { data } = await sb.from('precos').select('*').order('id');
+      precosGlobal = data || [];
+    }
+
+    async function carregarPrecos() {
+      precosGlobal = [];
+      await carregarPrecosFetch();
+      const list = document.getElementById('preco-list');
+      list.innerHTML = precosGlobal.map(p => `
+        <div class="preco-item ${p.ativo ? '' : 'preco-item-inativo'}" id="preco-item-${p.id}">
+          <div style="flex:1">
+            <div class="preco-item-nome">${p.nome}</div>
+          </div>
+          <div class="preco-item-valor">${parseFloat(p.valor).toFixed(2)} €</div>
+          <button class="btn-toggle" onclick="toggleAtivo(${p.id}, ${p.ativo})">${p.ativo ? 'Desativar' : 'Ativar'}</button>
+        </div>`).join('');
+    }
+
+    async function toggleAtivo(id, ativo) {
+      await sb.from('precos').update({ ativo: !ativo }).eq('id', id);
+      precosGlobal = [];
+      await carregarPrecos();
+    }
+
+    async function adicionarPreco() {
+      const nome  = document.getElementById('novo-preco-nome').value.trim();
+      const valor = parseFloat(document.getElementById('novo-preco-valor').value);
+      if (!nome || isNaN(valor)) { alert('Preenche o nome e o valor.'); return; }
+      const { error } = await sb.from('precos').insert({ nome, valor });
+      if (error) { alert('Erro: ' + error.message); return; }
+      document.getElementById('novo-preco-nome').value  = '';
+      document.getElementById('novo-preco-valor').value = '';
+      precosGlobal = [];
+      await carregarPrecos();
+    }
+
+    // ── Movimentos (histórico de pagamentos) ──
+    let movimentosCache = [];
+
+    async function carregarMovimentos() {
+      const tbody = document.getElementById('body-movimentos');
+      tbody.innerHTML = '<tr><td colspan="4" class="empty">A carregar...</td></tr>';
+
+      const { data, error } = await sb
+        .from('mensalidades')
+        .select('data_pagamento, valor_cobrado, notas, inscricoes(nome)')
+        .eq('status', 'pago')
+        .order('data_pagamento', { ascending: false });
+
+      if (error) { tbody.innerHTML = '<tr><td colspan="4" class="empty">Erro ao carregar movimentos.</td></tr>'; return; }
+
+      movimentosCache = data || [];
+      filtrarMovimentos();
+    }
+
+    function filtrarMovimentos() {
+      const termo = (document.getElementById('pesquisa-movimentos')?.value || '').trim().toLowerCase();
+      const de    = document.getElementById('movimentos-data-de')?.value;
+      const ate   = document.getElementById('movimentos-data-ate')?.value;
+
+      const rows = movimentosCache.filter(m => {
+        const nome = (m.inscricoes?.nome || '').toLowerCase();
+        if (termo && !nome.includes(termo)) return false;
+        if (de && m.data_pagamento < de) return false;
+        if (ate && m.data_pagamento > ate) return false;
+        return true;
+      });
+
+      renderMovimentos(rows);
+    }
+
+    function renderMovimentos(rows) {
+      const tbody = document.getElementById('body-movimentos');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">Nenhum movimento encontrado.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(m => `
+        <tr>
+          <td>${m.data_pagamento ? new Date(m.data_pagamento).toLocaleDateString('pt-PT') : '—'}</td>
+          <td><strong>${m.inscricoes?.nome || '—'}</strong></td>
+          <td>${parseFloat(m.valor_cobrado).toFixed(2)} €</td>
+          <td>${m.notas || '—'}</td>
+        </tr>`).join('');
+    }
+
+    function limparFiltrosMovimentos() {
+      document.getElementById('pesquisa-movimentos').value = '';
+      document.getElementById('movimentos-data-de').value  = '';
+      document.getElementById('movimentos-data-ate').value = '';
+      filtrarMovimentos();
+    }
+
+    // ── Toggle calendário (genérico para qualquer input[type=date]) ──
+    const calendariosAbertos = new Set();
+
+    function toggleCalendario(inputId) {
+      const input = document.getElementById(inputId);
+      if (calendariosAbertos.has(inputId)) {
+        input.blur();
+        calendariosAbertos.delete(inputId);
+      } else {
+        input.showPicker();
+        calendariosAbertos.add(inputId);
+      }
+      document.getElementById(inputId).addEventListener('blur', () => calendariosAbertos.delete(inputId), { once: true });
+    }
+
+    // Fechar modais ao clicar fora
+    document.getElementById('modal-pagar').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-pagar')) fecharModalPagar();
+    });
+  </script>
+</body>
+</html>

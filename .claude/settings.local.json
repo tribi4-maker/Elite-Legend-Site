@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem \"$env:USERPROFILE\\\\.vscode\\\\extensions\" -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"live\" } | Select-Object Name)",
+      "PowerShell(Test-Path \"$env:USERPROFILE\\\\.vscode\\\\extensions\"; Get-ChildItem \"$env:USERPROFILE\\\\.vscode\\\\extensions\" -ErrorAction SilentlyContinue | Select-Object -First 30 Name)",
+      "PowerShell(code --install-extension ritwickdey.LiveServer)",
+      "PowerShell(Get-ChildItem -Force \"c:\\\\Users\\\\tribi\\\\Desktop\\\\Elite Legends\\\\Site\" -Recurse -Depth 1 | Where-Object { $_.Name -match \"supabase|config.toml\" } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"$env:USERPROFILE\\\\.vscode\\\\extensions\" -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"deno\" } | Select-Object Name)",
+      "PowerShell(code --install-extension denoland.vscode-deno)"
+    ]
+  }
+}
