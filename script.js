@@ -241,6 +241,64 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
   if (total > 1) reiniciarAutoplay();
 })();
 
+/* ── Galeria de atletas + Lightbox ─────────────── */
+(function () {
+  const grid = document.getElementById('galeria-grid');
+  if (!grid) return;
+
+  const total  = 20;
+  const fotos  = Array.from({ length: total }, (_, i) => `images/atletas/${i + 1}.webp`);
+
+  grid.innerHTML = fotos
+    .map((src, i) => `
+      <button class="galeria-thumb" type="button" data-index="${i}" aria-label="Ver foto ${i + 1} em grande">
+        <img src="${src}" alt="Atleta Elite Legend Academy" loading="lazy" />
+      </button>
+    `)
+    .join('');
+
+  const lightbox    = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const btnClose     = document.getElementById('lightbox-close');
+  const btnPrev      = document.getElementById('lightbox-prev');
+  const btnNext       = document.getElementById('lightbox-next');
+
+  let atual = 0;
+
+  function abrir(i) {
+    atual = (i + total) % total;
+    lightboxImg.src = fotos[atual];
+    lightbox.classList.add('open');
+  }
+
+  function fechar() {
+    lightbox.classList.remove('open');
+    lightboxImg.src = '';
+  }
+
+  function seguinte() { abrir(atual + 1); }
+  function anterior()  { abrir(atual - 1); }
+
+  grid.querySelectorAll('.galeria-thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => abrir(Number(thumb.dataset.index)));
+  });
+
+  btnClose.addEventListener('click', fechar);
+  btnPrev.addEventListener('click', anterior);
+  btnNext.addEventListener('click', seguinte);
+
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) fechar();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape')     fechar();
+    if (e.key === 'ArrowRight') seguinte();
+    if (e.key === 'ArrowLeft')  anterior();
+  });
+})();
+
 /* ── Scroll ativo no navbar ─────────────────────── */
 const sections = document.querySelectorAll('section[id]');
 const links    = document.querySelectorAll('.nav-links a');
