@@ -246,7 +246,7 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
   const grid = document.getElementById('galeria-grid');
   if (!grid) return;
 
-  const fotosAtletas = Array.from({ length: 20 }, (_, i) => `images/atletas/${i + 1}.webp`);
+  const fotosAtletas = Array.from({ length: 21 }, (_, i) => `images/atletas/${i + 1}.webp`);
   const fotos = [...fotosAtletas, 'images/atletas/treinadores.webp'];
   const total = fotos.length;
 
