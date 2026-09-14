@@ -241,38 +241,22 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
   if (total > 1) reiniciarAutoplay();
 })();
 
-/* ── Galeria de atletas + Lightbox ─────────────── */
+/* ── Galerias (Plantel + Patrocinadores) + Lightbox ── */
 (function () {
-  const grid = document.getElementById('galeria-grid');
-  if (!grid) return;
-
-  const fotosAtletas = Array.from({ length: 24 }, (_, i) => `images/atletas/${i + 1}.webp`);
-  const fotos = [...fotosAtletas, 'images/atletas/treinadores.webp'];
-  const total = fotos.length;
-
-  grid.innerHTML = fotos
-    .map((src, i) => {
-      const isTreinadores = src.includes('treinadores');
-      const alt = isTreinadores ? 'Treinadores Elite Legend Academy' : 'Atleta Elite Legend Academy';
-      return `
-      <button class="galeria-thumb" type="button" data-index="${i}" aria-label="Ver foto ${i + 1} em grande">
-        <img src="${src}" alt="${alt}" loading="lazy" />
-      </button>
-    `;
-    })
-    .join('');
-
   const lightbox    = document.getElementById('lightbox');
+  if (!lightbox) return;
   const lightboxImg = document.getElementById('lightbox-img');
   const btnClose     = document.getElementById('lightbox-close');
   const btnPrev      = document.getElementById('lightbox-prev');
   const btnNext       = document.getElementById('lightbox-next');
 
+  let fotosAtual = [];
   let atual = 0;
 
-  function abrir(i) {
-    atual = (i + total) % total;
-    lightboxImg.src = fotos[atual];
+  function abrir(fotos, i) {
+    fotosAtual = fotos;
+    atual = (i + fotosAtual.length) % fotosAtual.length;
+    lightboxImg.src = fotosAtual[atual];
     lightbox.classList.add('open');
   }
 
@@ -281,12 +265,8 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
     lightboxImg.src = '';
   }
 
-  function seguinte() { abrir(atual + 1); }
-  function anterior()  { abrir(atual - 1); }
-
-  grid.querySelectorAll('.galeria-thumb').forEach(thumb => {
-    thumb.addEventListener('click', () => abrir(Number(thumb.dataset.index)));
-  });
+  function seguinte() { abrir(fotosAtual, atual + 1); }
+  function anterior()  { abrir(fotosAtual, atual - 1); }
 
   btnClose.addEventListener('click', fechar);
   btnPrev.addEventListener('click', anterior);
@@ -302,6 +282,32 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
     if (e.key === 'ArrowRight') seguinte();
     if (e.key === 'ArrowLeft')  anterior();
   });
+
+  function setupGaleria(gridId, fotos, altFn) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+
+    grid.innerHTML = fotos
+      .map((src, i) => `
+        <button class="galeria-thumb" type="button" data-index="${i}" aria-label="Ver foto ${i + 1} em grande">
+          <img src="${src}" alt="${altFn(src, i)}" loading="lazy" />
+        </button>
+      `)
+      .join('');
+
+    grid.querySelectorAll('.galeria-thumb').forEach(thumb => {
+      thumb.addEventListener('click', () => abrir(fotos, Number(thumb.dataset.index)));
+    });
+  }
+
+  const fotosAtletas = Array.from({ length: 24 }, (_, i) => `images/atletas/${i + 1}.webp`);
+  const fotosPlantel = [...fotosAtletas, 'images/atletas/treinadores.webp'];
+  setupGaleria('galeria-grid', fotosPlantel, src =>
+    src.includes('treinadores') ? 'Treinadores Elite Legend Academy' : 'Atleta Elite Legend Academy'
+  );
+
+  const fotosPatrocinadores = ['1', '2', '8', '9', '10'].map(n => `images/patrocinadores/${n}.webp`);
+  setupGaleria('patrocinadores-grid', fotosPatrocinadores, () => 'Patrocinador Elite Legend Academy');
 })();
 
 /* ── Scroll ativo no navbar ─────────────────────── */
