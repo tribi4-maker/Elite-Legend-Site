@@ -487,16 +487,6 @@ textarea { resize: vertical; }
   display: block;
 }
 
-@media (min-width: 769px) {
-  .novidade-cartaz .novidade-img {
-    flex: 0 0 34%;
-    max-width: 34%;
-    background: #0c0c0c;
-  }
-  .novidade-cartaz .novidade-img img {
-    object-fit: contain;
-  }
-}
 .novidade-body {
   flex: 1;
   padding: 36px 36px 36px 40px;
