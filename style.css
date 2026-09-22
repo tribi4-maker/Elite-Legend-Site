@@ -474,6 +474,7 @@ textarea { resize: vertical; }
   border-radius: 16px;
   overflow: hidden;
   margin-top: 40px;
+  min-height: 600px;
 }
 .novidade-img {
   flex: 0 0 48%;
@@ -484,6 +485,17 @@ textarea { resize: vertical; }
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+@media (min-width: 769px) {
+  .novidade-cartaz .novidade-img {
+    flex: 0 0 34%;
+    max-width: 34%;
+    background: #0c0c0c;
+  }
+  .novidade-cartaz .novidade-img img {
+    object-fit: contain;
+  }
 }
 .novidade-body {
   flex: 1;
@@ -592,8 +604,9 @@ textarea { resize: vertical; }
 }
 
 @media (max-width: 768px) {
-  .novidade-card { flex-direction: column; }
-  .novidade-img { flex: none; max-width: 100%; height: 220px; }
+  .novidade-card { flex-direction: column; min-height: 0; }
+  .novidade-img { flex: none; max-width: 100%; height: auto; background: #0c0c0c; }
+  .novidade-img img { height: auto; object-fit: contain; }
   .novidade-body { padding: 24px; }
   .novidade-title { font-size: 1.2rem; }
 }
