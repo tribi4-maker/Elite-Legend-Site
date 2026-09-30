@@ -306,7 +306,7 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
     src.includes('treinadores') ? 'Treinadores Elite Legend Academy' : 'Atleta Elite Legend Academy'
   );
 
-  const fotosPatrocinadores = ['1', '2', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '17', '18'].map(n => `images/patrocinadores/${n}.webp`);
+  const fotosPatrocinadores = ['1', '2', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '17', '18', '19', '20', '21'].map(n => `images/patrocinadores/${n}.webp`);
   setupGaleria('patrocinadores-grid', fotosPatrocinadores, () => 'Patrocinador Elite Legend Academy');
 })();
 
