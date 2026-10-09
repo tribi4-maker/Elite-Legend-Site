@@ -578,9 +578,16 @@
 
     /* ── Stepper de valor (+10 / -10) ── */
     .valor-stepper { display: flex; align-items: center; gap: 8px; }
-    .valor-stepper input[type="number"] { flex: 1; text-align: center; -moz-appearance: textfield; }
-    .valor-stepper input[type="number"]::-webkit-inner-spin-button,
-    .valor-stepper input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .valor-input-wrap { position: relative; flex: 1; display: flex; }
+    .valor-input-wrap input[type="number"] { width: 100%; text-align: center; padding-right: 32px; -moz-appearance: textfield; }
+    .valor-input-wrap input[type="number"]::-webkit-inner-spin-button,
+    .valor-input-wrap input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .btn-oferta {
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      background: transparent; border: none; cursor: pointer; font-size: 1.05rem;
+      padding: 2px 5px; line-height: 1; opacity: .7; transition: opacity .2s, transform .15s;
+    }
+    .btn-oferta:hover { opacity: 1; transform: translateY(-50%) scale(1.15); }
     .btn-stepper {
       width: 34px; height: 34px; flex-shrink: 0;
       background: #1c1c1c; border: 1px solid var(--border); border-radius: 6px;
@@ -642,6 +649,18 @@
     .modal-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; }
     .modal-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; min-width: 0; }
     .movimentos-datas { display: flex; gap: 10px; align-items: end; }
+    .movimentos-acoes { display: flex; gap: 6px; }
+    @media (min-width: 601px) {
+      th.col-acao-movimentos { text-align: right; }
+      td.col-acao-movimentos .movimentos-acoes { justify-content: flex-end; }
+    }
+    .btn-mov-editar, .btn-mov-apagar {
+      padding: 5px 10px; border-radius: 6px; font-size: .78rem; cursor: pointer;
+      border: 1px solid var(--border); background: transparent; color: var(--muted);
+      transition: border-color .2s, color .2s;
+    }
+    .btn-mov-editar:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-mov-apagar:hover { border-color: #ff6b6b; color: #ff6b6b; }
     .modal-group label { font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
     .modal-group select, .modal-group input, .modal-group textarea {
       background: #1c1c1c; border: 1px solid var(--border); border-radius: 8px;
@@ -927,6 +946,10 @@
       <div class="tab-panel" id="tab-pagamentos">
         <div class="stats">
           <div class="stat-card">
+            <div class="stat-label">Total Mensalidades</div>
+            <div class="stat-value" id="stat-total-mensalidades">—</div>
+          </div>
+          <div class="stat-card">
             <div class="stat-label">Total Pago (Histórico)</div>
             <div class="stat-value" id="stat-pago-total" style="color:#00c864">—</div>
           </div>
@@ -936,12 +959,12 @@
           </div>
           <div class="stat-card">
             <div class="stat-label">Por Pagar Este Mês</div>
-            <div class="stat-value" id="stat-porpagar-mes" style="color:#C9A84C">—</div>
+            <div class="stat-value" id="stat-porpagar-mes" style="color:#ff6b6b">—</div>
           </div>
         </div>
 
         <div class="sub-tabs">
-          <button class="sub-tab-btn active" data-sub="atletas">Atletas</button>
+          <button class="sub-tab-btn active" data-sub="atletas">Atletas<span id="contagem-atletas-pagamentos"></span></button>
           <button class="sub-tab-btn" data-sub="precos">Tabela de Preços</button>
           <button class="sub-tab-btn" data-sub="movimentos">Movimentos</button>
         </div>
@@ -1031,10 +1054,11 @@
                   <th>Atleta</th>
                   <th>Valor</th>
                   <th>Notas</th>
+                  <th class="col-acao-movimentos">Ação</th>
                 </tr>
               </thead>
               <tbody id="body-movimentos">
-                <tr><td colspan="4" class="empty">A carregar...</td></tr>
+                <tr><td colspan="5" class="empty">A carregar...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1115,6 +1139,20 @@
     </div>
   </div>
 
+  <!-- Modal: Confirmar apagar movimento -->
+  <div class="modal-overlay" id="modal-confirmar-apagar-movimento">
+    <div class="modal-box" style="max-width:400px;">
+      <div class="modal-title">Apagar Registo</div>
+      <p style="color:var(--muted);font-size:.92rem;line-height:1.6;">
+        Tens a certeza que queres apagar este registo de pagamento? Esta ação não pode ser desfeita.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharConfirmarApagarMovimento()">Cancelar</button>
+        <button class="btn-modal-rejeitar" onclick="apagarMovimentoConfirmado()">✗ Apagar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Detalhe da pré-inscrição (mobile) -->
   <div class="modal-overlay" id="modal-detalhe">
     <div class="modal-box" style="max-width:480px;max-height:90vh;overflow-y:auto;">
@@ -1187,7 +1225,10 @@
         <label>Valor Cobrado (€)</label>
         <div class="valor-stepper">
           <button type="button" class="btn-stepper" onclick="ajustarValorPagar(-10)">−</button>
-          <input type="number" id="modal-pagar-valor" step="0.01" min="0" />
+          <div class="valor-input-wrap">
+            <input type="number" id="modal-pagar-valor" step="0.01" min="0" />
+            <button type="button" class="btn-oferta" id="btn-oferta" title="Marcar como oferta (0€)" onclick="marcarOferta()">🎁</button>
+          </div>
           <button type="button" class="btn-stepper" onclick="ajustarValorPagar(10)">+</button>
         </div>
       </div>
@@ -1955,10 +1996,13 @@
         const aindaNaoComecou = inicioMes && inicioAno &&
           (anoAtualGlobal < inicioAno || (anoAtualGlobal === inicioAno && mesAtual < inicioMes));
         const pagoMesAtual = (mens || []).some(m => m.atleta_id === a.id && m.mes === mesAtual && m.ano === anoAtualGlobal);
-        return { ...a, _emFalta: !aindaNaoComecou && !pagoMesAtual };
+        return { ...a, _emFalta: !aindaNaoComecou && !pagoMesAtual, _aindaNaoComecou: aindaNaoComecou };
       });
 
       atualizarStatsPagamentos(mens || [], mesAtual, anoAtualGlobal);
+
+      const contagem = document.getElementById('contagem-atletas-pagamentos');
+      if (contagem) contagem.textContent = ` (${atletasCache.length})`;
 
       if (!atletas?.length) { grid.innerHTML = '<div class="empty">Sem atletas aprovados.</div>'; return; }
 
@@ -1979,6 +2023,14 @@
           return soma + (preco ? parseFloat(preco.valor) : 0);
         }, 0);
 
+      const totalMensalidades = atletasCache
+        .filter(a => !a._aindaNaoComecou)
+        .reduce((soma, a) => {
+          const preco = precosGlobal.find(p => p.id === a.preco_padrao_id);
+          return soma + (preco ? parseFloat(preco.valor) : 0);
+        }, 0);
+
+      document.getElementById('stat-total-mensalidades').textContent = totalMensalidades.toFixed(2) + ' €';
       document.getElementById('stat-pago-total').textContent    = totalHistorico.toFixed(2) + ' €';
       document.getElementById('stat-pago-mes').textContent      = totalMes.toFixed(2) + ' €';
       document.getElementById('stat-porpagar-mes').textContent  = porPagarMes.toFixed(2) + ' €';
@@ -2196,12 +2248,26 @@
       document.getElementById('modal-pagar').classList.remove('show');
       mensalidadeParaPagar = null;
       mesVirtualParaPagar  = null;
+      editandoMovimento    = false;
     }
 
     function ajustarValorPagar(delta) {
       const input = document.getElementById('modal-pagar-valor');
       const atual = parseFloat(input.value) || 0;
       input.value = Math.max(0, atual + delta).toFixed(2);
+    }
+
+    function marcarOferta() {
+      document.getElementById('modal-pagar-valor').value = '0.00';
+
+      const notasEl = document.getElementById('modal-pagar-notas');
+      if (!/OFERTA/i.test(notasEl.value)) {
+        const prefixo = notasEl.value.trim();
+        notasEl.value = (prefixo ? prefixo + ' ' : '') + 'OFERTA';
+      }
+      notasEl.focus();
+      const pos = notasEl.value.length - 'OFERTA'.length;
+      notasEl.setSelectionRange(pos, pos);
     }
 
     async function confirmarPagamento() {
@@ -2228,9 +2294,14 @@
         if (error) { alert('Erro ao registar pagamento: ' + error.message); return; }
       }
 
-      fecharModalPagar();
-      await renderMeses();
-      carregarAtletasPagamentos();
+      if (editandoMovimento) {
+        fecharModalPagar();
+        await carregarMovimentos();
+      } else {
+        fecharModalPagar();
+        await renderMeses();
+        carregarAtletasPagamentos();
+      }
     }
 
     async function apagarMensalidade(id) {
@@ -2281,19 +2352,21 @@
     }
 
     // ── Movimentos (histórico de pagamentos) ──
-    let movimentosCache = [];
+    let movimentosCache  = [];
+    let editandoMovimento = false;
+    let idParaApagarMovimento = null;
 
     async function carregarMovimentos() {
       const tbody = document.getElementById('body-movimentos');
-      tbody.innerHTML = '<tr><td colspan="4" class="empty">A carregar...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">A carregar...</td></tr>';
 
       const { data, error } = await sb
         .from('mensalidades')
-        .select('data_pagamento, valor_cobrado, notas, inscricoes(nome)')
+        .select('id, data_pagamento, valor_cobrado, notas, inscricoes(nome)')
         .eq('status', 'pago')
         .order('data_pagamento', { ascending: false });
 
-      if (error) { tbody.innerHTML = '<tr><td colspan="4" class="empty">Erro ao carregar movimentos.</td></tr>'; return; }
+      if (error) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Erro ao carregar movimentos.</td></tr>'; return; }
 
       movimentosCache = data || [];
       filtrarMovimentos();
@@ -2318,7 +2391,7 @@
     function renderMovimentos(rows) {
       const tbody = document.getElementById('body-movimentos');
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="4" class="empty">Nenhum movimento encontrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">Nenhum movimento encontrado.</td></tr>';
         return;
       }
       tbody.innerHTML = rows.map(m => `
@@ -2327,7 +2400,43 @@
           <td><strong>${m.inscricoes?.nome || '—'}</strong></td>
           <td>${parseFloat(m.valor_cobrado).toFixed(2)} €</td>
           <td>${m.notas || '—'}</td>
+          <td class="col-acao-movimentos">
+            <div class="movimentos-acoes">
+              <button class="btn-mov-editar" onclick="editarMovimento(${m.id})">Editar</button>
+              <button class="btn-mov-apagar" onclick="confirmarApagarMovimento(${m.id})">Apagar</button>
+            </div>
+          </td>
         </tr>`).join('');
+    }
+
+    function editarMovimento(id) {
+      const m = movimentosCache.find(x => x.id === id);
+      if (!m) return;
+      editandoMovimento    = true;
+      mensalidadeParaPagar = id;
+      mesVirtualParaPagar  = null;
+      document.getElementById('modal-pagar-data').value  = m.data_pagamento || '';
+      document.getElementById('modal-pagar-valor').value = m.valor_cobrado ?? '';
+      document.getElementById('modal-pagar-notas').value = m.notas || '';
+      document.getElementById('modal-pagar').classList.add('show');
+    }
+
+    function confirmarApagarMovimento(id) {
+      idParaApagarMovimento = id;
+      document.getElementById('modal-confirmar-apagar-movimento').classList.add('show');
+    }
+
+    function fecharConfirmarApagarMovimento() {
+      document.getElementById('modal-confirmar-apagar-movimento').classList.remove('show');
+      idParaApagarMovimento = null;
+    }
+
+    async function apagarMovimentoConfirmado() {
+      if (!idParaApagarMovimento) return;
+      const { error } = await sb.from('mensalidades').delete().eq('id', idParaApagarMovimento);
+      fecharConfirmarApagarMovimento();
+      if (error) { alert('Erro ao apagar registo.'); return; }
+      await carregarMovimentos();
     }
 
     function limparFiltrosMovimentos() {
