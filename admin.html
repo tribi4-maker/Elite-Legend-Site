@@ -170,6 +170,28 @@
 
     .topbar-actions { display: flex; align-items: center; gap: 10px; }
 
+    /* ── Hamburger (topbar, mobile) ── */
+    .topbar-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 40px; height: 36px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .topbar-toggle span {
+      display: block; width: 18px; height: 2px; margin: 0 auto;
+      background: var(--text); border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    .topbar-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .topbar-toggle.open span:nth-child(2) { opacity: 0; }
+    .topbar-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
     .dashboard-body { padding: 20px 40px; }
 
     .stats {
@@ -659,12 +681,24 @@
     @media (max-width: 600px) {
       .topbar { padding: 0 16px; }
       .topbar-title { font-size: .88rem; }
+
+      .topbar-toggle { display: flex; }
       .topbar-actions {
-        gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; max-width: 62vw;
+        position: fixed; top: 64px; left: 0; right: 0;
+        flex-direction: column; align-items: stretch; gap: 0;
+        background: rgba(10,10,10,.97); backdrop-filter: blur(14px);
+        border: none; border-radius: 0; border-bottom: 1px solid var(--border);
+        padding: 8px 0 16px;
+        max-height: calc(100vh - 64px); overflow-y: auto;
+        transform: translateY(-110%); opacity: 0; pointer-events: none;
+        transition: transform .3s ease, opacity .25s ease;
+        z-index: 99;
       }
-      .topbar-actions::-webkit-scrollbar { display: none; }
-      .topbar-actions .btn-logout { padding: 8px 12px; font-size: .78rem; flex-shrink: 0; }
+      .topbar-actions.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+      .topbar-actions .btn-logout {
+        width: 100%; border-radius: 0; border: none; border-bottom: 1px solid var(--border);
+        padding: 14px 0; font-size: .95rem;
+      }
       .dashboard-body { padding: 20px; }
 
       .stats { grid-template-columns: 1fr; }
@@ -755,7 +789,10 @@
   <div id="dashboard">
     <div class="topbar">
       <div class="topbar-title">Backoffice</div>
-      <div class="topbar-actions">
+      <button class="topbar-toggle" id="topbar-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-actions" id="topbar-actions">
         <button class="btn-logout" id="btn-plantel" onclick="window.location.href='galeria-admin.html?tipo=atletas'">Plantel</button>
         <button class="btn-logout" id="btn-patrocinadores" onclick="window.location.href='galeria-admin.html?tipo=patrocinadores'">Patrocinadores</button>
         <button class="btn-logout" id="btn-publicacoes" onclick="window.location.href='publicacoes.html'">Publicações</button>
@@ -1235,6 +1272,22 @@
     document.addEventListener('click', (e) => {
       const toggle = document.getElementById('tabs-toggle');
       const nav    = document.getElementById('tabs-nav');
+      if (nav.classList.contains('open') && !nav.contains(e.target) && !toggle.contains(e.target)) {
+        toggle.classList.remove('open');
+        nav.classList.remove('open');
+      }
+    });
+
+    // ── Menu hamburger (topbar, mobile) ──
+    document.getElementById('topbar-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('topbar-toggle').classList.toggle('open');
+      document.getElementById('topbar-actions').classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      const toggle = document.getElementById('topbar-toggle');
+      const nav    = document.getElementById('topbar-actions');
       if (nav.classList.contains('open') && !nav.contains(e.target) && !toggle.contains(e.target)) {
         toggle.classList.remove('open');
         nav.classList.remove('open');

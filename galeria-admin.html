@@ -114,7 +114,7 @@
     .pub-card-title { font-size: .84rem; font-weight: 600; line-height: 1.3; color: var(--muted); }
     .pub-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 4px; }
     .btn-pub-edit, .btn-pub-archive, .btn-pub-restore {
-      flex: 1; padding: 7px; border-radius: 7px; font-size: .78rem; cursor: pointer;
+      flex: 1; min-width: 0; padding: 7px; border-radius: 7px; font-size: .78rem; cursor: pointer;
       border: 1px solid var(--border); background: transparent; color: var(--muted);
       transition: border-color .2s, color .2s;
     }
@@ -214,6 +214,10 @@
       .topbar-actions .btn-logout { padding: 8px 12px; font-size: .78rem; }
       .dashboard-body { padding: 20px; }
       .publicacoes-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .pub-actions { flex-direction: column; }
+      .btn-pub-edit, .btn-pub-archive, .btn-pub-restore {
+        width: 100%; padding: 6px 8px; font-size: .7rem;
+      }
     }
   </style>
 </head>
