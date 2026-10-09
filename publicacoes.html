@@ -223,10 +223,10 @@
     .form-hint { font-size: .74rem; color: var(--muted); }
     .imagem-preview-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
     .form-imagem-preview {
-      width: 110px; aspect-ratio: 0.88; object-fit: cover; border-radius: 8px;
+      width: 110px; aspect-ratio: 1080 / 1350; object-fit: cover; border-radius: 8px;
       border: 1px solid var(--border); background: #000; flex-shrink: 0;
     }
-    .cropper-frame { width: 100%; aspect-ratio: 0.88; background: #000; overflow: hidden; border-radius: 8px; }
+    .cropper-frame { width: 100%; aspect-ratio: 1080 / 1350; background: #000; overflow: hidden; border-radius: 8px; }
     .cropper-frame img { display: block; max-width: none; }
     .cropper-zoom-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: var(--muted); font-size: 1rem; }
     .cropper-zoom-row input[type="range"] { flex: 1; accent-color: var(--accent); }
@@ -449,7 +449,7 @@
     let idParaArquivar   = null;
 
     // ── Ajustar imagem (Cropper.js) ──
-    const RATIO_IMAGEM = 0.88; // largura/altura do espaço da imagem nos cartões de Novidades
+    const RATIO_IMAGEM = 1080 / 1350; // largura/altura do espaço da imagem nos cartões de Novidades
     let cropperInstance = null;
     let baseZoomRatio   = null;
 
@@ -501,7 +501,7 @@
 
     function aplicarCropper() {
       if (!cropperInstance) return;
-      const canvas = cropperInstance.getCroppedCanvas({ width: 1056, height: 1200, fillColor: '#000' });
+      const canvas = cropperInstance.getCroppedCanvas({ width: 1080, height: 1350, fillColor: '#000' });
       if (!canvas) return;
       canvas.toBlob(blob => {
         if (!blob) return;
@@ -718,9 +718,9 @@
       const imgSrc = imagemAtualUrl;
 
       // Estilos em linha: garantem o layout de desktop (imagem 48% + recorte
-      // 0.88, igual ao "Ajustar enquadramento") mesmo que a janela do browser
-      // esteja mais estreita que 768px — o preview não deve depender da
-      // largura da janela do admin, só da do cartão no site.
+      // 1080x1350, igual ao "Ajustar enquadramento") mesmo que a janela do
+      // browser esteja mais estreita que 768px — o preview não deve
+      // depender da largura da janela do admin, só da do cartão no site.
       const card = document.getElementById('preview-card');
       card.setAttribute('style', 'margin-top:0;display:flex;flex-direction:row;align-items:stretch;min-height:600px;');
 

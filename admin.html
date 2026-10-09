@@ -659,8 +659,12 @@
     @media (max-width: 600px) {
       .topbar { padding: 0 16px; }
       .topbar-title { font-size: .88rem; }
-      .topbar-actions { gap: 6px; }
-      .topbar-actions .btn-logout { padding: 8px 12px; font-size: .78rem; }
+      .topbar-actions {
+        gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; max-width: 62vw;
+      }
+      .topbar-actions::-webkit-scrollbar { display: none; }
+      .topbar-actions .btn-logout { padding: 8px 12px; font-size: .78rem; flex-shrink: 0; }
       .dashboard-body { padding: 20px; }
 
       .stats { grid-template-columns: 1fr; }
@@ -752,6 +756,8 @@
     <div class="topbar">
       <div class="topbar-title">Backoffice</div>
       <div class="topbar-actions">
+        <button class="btn-logout" id="btn-plantel" onclick="window.location.href='galeria-admin.html?tipo=atletas'">Plantel</button>
+        <button class="btn-logout" id="btn-patrocinadores" onclick="window.location.href='galeria-admin.html?tipo=patrocinadores'">Patrocinadores</button>
         <button class="btn-logout" id="btn-publicacoes" onclick="window.location.href='publicacoes.html'">Publicações</button>
         <button class="btn-logout" id="btn-logout">Sair</button>
       </div>

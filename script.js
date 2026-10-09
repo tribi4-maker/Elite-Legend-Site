@@ -338,31 +338,48 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
     if (e.key === 'ArrowLeft')  anterior();
   });
 
-  function setupGaleria(gridId, fotos, altFn) {
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  function setupGaleria(gridId, itens) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
 
-    grid.innerHTML = fotos
-      .map((src, i) => `
+    grid.innerHTML = itens
+      .map((item, i) => `
         <button class="galeria-thumb" type="button" data-index="${i}" aria-label="Ver foto ${i + 1} em grande">
-          <img src="${src}" alt="${altFn(src, i)}" loading="lazy" />
+          <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" loading="lazy" />
         </button>
       `)
       .join('');
 
+    const fotos = itens.map(item => item.src);
     grid.querySelectorAll('.galeria-thumb').forEach(thumb => {
       thumb.addEventListener('click', () => abrir(fotos, Number(thumb.dataset.index)));
     });
   }
 
-  const fotosAtletas = Array.from({ length: 24 }, (_, i) => `images/atletas/${i + 1}.webp`);
-  const fotosPlantel = [...fotosAtletas, 'images/atletas/treinadores.webp'];
-  setupGaleria('galeria-grid', fotosPlantel, src =>
-    src.includes('treinadores') ? 'Treinadores Elite Legend Academy' : 'Atleta Elite Legend Academy'
-  );
+  async function carregarGaleria(tabela, gridId) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabela}?ativo=eq.true&order=id.asc`, {
+        headers: {
+          apikey:        SUPABASE_ANON,
+          Authorization: `Bearer ${SUPABASE_ANON}`,
+        },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setupGaleria(gridId, data.map(item => ({ src: item.imagem_url, alt: item.legenda || '' })));
+    } catch (err) {
+      console.error(`Erro ao carregar ${tabela}:`, err);
+    }
+  }
 
-  const fotosPatrocinadores = ['1', '2', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '17', '18', '19', '20', '21', '22', '23', '24'].map(n => `images/patrocinadores/${n}.webp`);
-  setupGaleria('patrocinadores-grid', fotosPatrocinadores, () => 'Patrocinador Elite Legend Academy');
+  carregarGaleria('atletas', 'galeria-grid');
+  carregarGaleria('patrocinadores', 'patrocinadores-grid');
 })();
 
 /* ── Scroll ativo no navbar ─────────────────────── */

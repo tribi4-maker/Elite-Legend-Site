@@ -479,6 +479,7 @@ textarea { resize: vertical; }
 .novidade-img {
   flex: 0 0 48%;
   max-width: 48%;
+  aspect-ratio: 1080 / 1350;
 }
 .novidade-img img {
   width: 100%;
@@ -595,7 +596,7 @@ textarea { resize: vertical; }
 
 @media (max-width: 768px) {
   .novidade-card { flex-direction: column; min-height: 0; }
-  .novidade-img { flex: none; max-width: 100%; height: auto; background: #0c0c0c; }
+  .novidade-img { flex: none; max-width: 100%; height: auto; aspect-ratio: auto; background: #0c0c0c; }
   .novidade-img img { height: auto; object-fit: contain; }
   .novidade-body { padding: 24px; }
   .novidade-title { font-size: 1.2rem; }
@@ -612,7 +613,7 @@ textarea { resize: vertical; }
 
 .galeria-thumb {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1080 / 1350;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--border);
