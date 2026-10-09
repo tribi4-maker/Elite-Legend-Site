@@ -174,31 +174,36 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
   });
 })();
 
-/* ── Carrossel de Novidades ──────────────────────── */
+/* ── Carrossel de Novidades (dados do Supabase) ──── */
 (function () {
   const track    = document.getElementById('novidades-track');
   const wrap     = document.querySelector('.novidades-track-wrap');
   const dotsWrap = document.getElementById('novidades-dots');
   if (!track) return;
 
-  const total = track.children.length;
   const INTERVALO = 6000;
+  let total = 0;
   let atual = 0;
   let timer = null;
-
   const dots = [];
-  if (dotsWrap) {
-    for (let i = 0; i < total; i++) {
-      const dot = document.createElement('button');
-      dot.className = 'novidades-dot';
-      dot.setAttribute('aria-label', `Ir para novidade ${i + 1}`);
-      dot.addEventListener('click', () => { irPara(i); reiniciarAutoplay(); });
-      dotsWrap.appendChild(dot);
-      dots.push(dot);
-    }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  function formatarTexto(texto) {
+    return String(texto)
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
+      .map(l => `<p class="novidade-text">${escapeHtml(l).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`)
+      .join('');
   }
 
   function irPara(i) {
+    if (!total) return;
     atual = (i + total) % total;
     track.style.transform = `translateX(-${atual * 100}%)`;
     dots.forEach((d, idx) => d.classList.toggle('active', idx === atual));
@@ -237,8 +242,58 @@ document.getElementById('inscricao-form').addEventListener('submit', async funct
     });
   }
 
-  irPara(0);
-  if (total > 1) reiniciarAutoplay();
+  function renderNovidades(lista) {
+    track.innerHTML = lista.map(n => `
+      <article class="novidade-card">
+        <div class="novidade-img">
+          <img src="${escapeHtml(n.imagem_url)}" alt="${escapeHtml(n.titulo)}" />
+        </div>
+        <div class="novidade-body">
+          <div class="novidade-meta">
+            <span class="novidade-tag">${escapeHtml(n.tag)}</span>
+            <span class="novidade-date">${escapeHtml(n.mes_ano)}</span>
+          </div>
+          <h3 class="novidade-title">${escapeHtml(n.titulo)}</h3>
+          ${formatarTexto(n.texto)}
+        </div>
+      </article>
+    `).join('');
+
+    total = track.children.length;
+    dots.length = 0;
+    if (dotsWrap) {
+      dotsWrap.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'novidades-dot';
+        dot.setAttribute('aria-label', `Ir para novidade ${i + 1}`);
+        dot.addEventListener('click', () => { irPara(i); reiniciarAutoplay(); });
+        dotsWrap.appendChild(dot);
+        dots.push(dot);
+      }
+    }
+
+    irPara(0);
+    if (total > 1) reiniciarAutoplay();
+  }
+
+  async function carregarNovidades() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/novidades?ativo=eq.true&order=criado_em.desc`, {
+        headers: {
+          apikey:        SUPABASE_ANON,
+          Authorization: `Bearer ${SUPABASE_ANON}`,
+        },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      renderNovidades(data);
+    } catch (err) {
+      console.error('Erro ao carregar novidades:', err);
+    }
+  }
+
+  carregarNovidades();
 })();
 
 /* ── Galerias (Plantel + Patrocinadores) + Lightbox ── */

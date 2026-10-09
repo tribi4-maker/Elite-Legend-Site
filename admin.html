@@ -168,6 +168,8 @@
     }
     .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
 
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
     .dashboard-body { padding: 20px 40px; }
 
     .stats {
@@ -655,7 +657,10 @@
     }
 
     @media (max-width: 600px) {
-      .topbar { padding: 0 20px; }
+      .topbar { padding: 0 16px; }
+      .topbar-title { font-size: .88rem; }
+      .topbar-actions { gap: 6px; }
+      .topbar-actions .btn-logout { padding: 8px 12px; font-size: .78rem; }
       .dashboard-body { padding: 20px; }
 
       .stats { grid-template-columns: 1fr; }
@@ -745,8 +750,11 @@
   <!-- Dashboard -->
   <div id="dashboard">
     <div class="topbar">
-      <div class="topbar-title">Elite Legend <em>Academy</em> — Backoffice</div>
-      <button class="btn-logout" id="btn-logout">Sair</button>
+      <div class="topbar-title">Backoffice</div>
+      <div class="topbar-actions">
+        <button class="btn-logout" id="btn-publicacoes" onclick="window.location.href='publicacoes.html'">Publicações</button>
+        <button class="btn-logout" id="btn-logout">Sair</button>
+      </div>
     </div>
     <div class="dashboard-body">
       <div class="stats">
